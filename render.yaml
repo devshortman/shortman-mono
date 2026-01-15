@@ -4,7 +4,7 @@
 services:
   # FastAPI 백엔드
   - type: web
-    name: short-man-backend
+    name: shortman-mono
     env: python
     region: oregon  # 또는 singapore (가까운 지역)
     buildCommand: |
