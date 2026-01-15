@@ -1,4 +1,5 @@
-# backend/app/main.py
+# backend/backend/app/main.py
+# CORS 설정 부분만 수정
 import os
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,12 +15,19 @@ app = FastAPI(
     description="Short-man 서비스의 Backend API 문서입니다."
 )
 
-# CORS 설정 (배포용)
+# 환경별 허용 도메인
 ALLOWED_ORIGINS = [
-    "https://devshortman.github.io",    # GitHub Pages
-    "http://localhost:5173",             # 로컬 개발
-    "http://127.0.0.1:5173",             # 로컬 개발 (대체)
+    "http://localhost:5173",           # 로컬 개발
+    "http://localhost:3000",           # 로컬 개발 (대체 포트)
+    "https://devshortman.github.io",    # GitHub Pages (devshortman)
+    "https://*.github.io",             # GitHub Pages 전체
 ]
+
+# 프로덕션 환경에서는 특정 도메인만
+if os.getenv("APP_ENV") == "prod":
+    ALLOWED_ORIGINS = [
+        "https://devshortman.github.io",  # GitHub Pages (devshorman)
+    ]
 
 app.add_middleware(
     CORSMiddleware,
