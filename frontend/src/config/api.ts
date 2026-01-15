@@ -7,7 +7,7 @@ const isProduction = import.meta.env.MODE === 'production';
 // 환경별 API URL
 export const API_BASE_URL = isDevelopment
   ? 'http://localhost:8000'  // 로컬 개발
-  : import.meta.env.VITE_API_BASE_URL || 'https://short-man-backend.onrender.com';  // 프로덕션
+  : import.meta.env.VITE_API_BASE_URL || 'https://shortman-mono.onrender.com';  // 프로덕션
 
 // API 엔드포인트
 export const API_ENDPOINTS = {
