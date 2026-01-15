@@ -1,0 +1,43 @@
+# render.yaml
+# Render.com 자동 배포 설정
+
+services:
+  # FastAPI 백엔드
+  - type: web
+    name: short-man-backend
+    env: python
+    region: oregon  # 또는 singapore (가까운 지역)
+    buildCommand: |
+      cd backend/backend
+      pip install -r requirements.txt
+    startCommand: |
+      cd backend/backend
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: APP_ENV
+        value: prod
+      - key: SUPABASE_URL
+        sync: false  # Dashboard에서 직접 설정
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false  # Dashboard에서 직접 설정
+    healthCheckPath: /health
+    
+  # 크롤러 (Cron Job) - 선택사항
+  # GitHub Actions로 대체 가능
+  # - type: cron
+  #   name: short-man-crawler
+  #   env: python
+  #   schedule: "0 0 * * *"  # 매일 자정
+  #   buildCommand: |
+  #     cd backend/backend
+  #     pip install -r requirements.txt
+  #   command: |
+  #     cd backend/backend
+  #     python simple_crawler.py
+  #   envVars:
+  #     - key: SUPABASE_URL
+  #       sync: false
+  #     - key: SUPABASE_SERVICE_ROLE_KEY
+  #       sync: false
