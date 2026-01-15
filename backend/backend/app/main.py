@@ -14,11 +14,17 @@ app = FastAPI(
     description="Short-man 서비스의 Backend API 문서입니다."
 )
 
-# CORS 설정 추가
+# CORS 설정 (배포용)
+ALLOWED_ORIGINS = [
+    "https://devshortman.github.io",    # GitHub Pages
+    "http://localhost:5173",             # 로컬 개발
+    "http://127.0.0.1:5173",             # 로컬 개발 (대체)
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 프로덕션에서는 특정 도메인만 허용
-    allow_credentials=True,
+    allow_origins=ALLOWED_ORIGINS,      # 특정 도메인만 허용
+    allow_credentials=False,             # 쿠키 사용 안 함 (중요!)
     allow_methods=["*"],
     allow_headers=["*"],
 )
