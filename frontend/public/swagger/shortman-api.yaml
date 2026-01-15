@@ -1,0 +1,391 @@
+swagger: "2.0"
+info:
+  title: "ShortMan 트렌드 숏폼 API"
+  description: |
+    홈 페이지에 노출되는 한국/해외/중국 숏폼 트렌드 리스트 및
+    좋아요·북마크·댓글 관련 기능을 제공하는 API 명세서.
+  version: "1.1.0"
+
+host: "host.location"
+basePath: "/api"
+schemes:
+  - https
+  - http
+
+paths:
+  /trends:
+    get:
+      summary: "지역별 숏폼 리스트 조회"
+      description: |
+        홈 화면의 트렌드 숏폼 리스트를 지역(region)별로 조회합니다.  
+        각 요청은 16개의 숏폼을 반환하며,  
+        프론트엔드에서는 한국 / 해외 / 중국 3개의 요청을 병렬로 수행합니다.
+      parameters:
+        - name: region
+          in: query
+          required: true
+          type: string
+          enum: [korea, global, china]
+          description: "조회할 지역명 (한국: korea, 해외: global, 중국: china)"
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          default: 16
+          description: "한 번에 불러올 숏폼 개수 (기본값 16)"
+        - name: page
+          in: query
+          required: false
+          type: integer
+          default: 1
+          description: "페이지 번호 (페이징 또는 인피니트 스크롤 시 사용)"
+      responses:
+        200:
+          description: "요청한 지역의 트렌드 숏폼 리스트 반환"
+          schema:
+            type: object
+            properties:
+              region:
+                type: string
+                example: "korea"
+              totalCount:
+                type: integer
+                example: 160
+              shorts:
+                type: array
+                items:
+                  $ref: "#/definitions/Short"
+
+  /shorts/{id}/like:
+    post:
+      summary: "좋아요/좋아요 취소"
+      description: "좋아요 버튼을 토글합니다. (like/unlike)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              action:
+                type: string
+                enum: [toggle, like, unlike]
+      responses:
+        200:
+          description: "좋아요 상태 및 개수 업데이트"
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              liked:
+                type: boolean
+              likes:
+                type: integer
+
+  /shorts/{id}/bookmark:
+    post:
+      summary: "북마크/북마크 취소"
+      description: "북마크 버튼을 토글합니다."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              action:
+                type: string
+                enum: [toggle]
+      responses:
+        200:
+          description: "북마크 상태 업데이트"
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              bookmarked:
+                type: boolean
+
+  /shorts/{id}/comment:
+    post:
+      summary: "댓글 작성"
+      description: "특정 숏폼에 댓글을 작성합니다."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              comment:
+                type: string
+      responses:
+        200:
+          description: "댓글 작성 성공"
+          schema:
+            $ref: "#/definitions/Comment"
+            
+  /trends/category:
+    get:
+      summary: "카테고리별 숏폼 리스트 조회"
+      description: |
+        선택한 지역(region)과 카테고리(category)에 따라 숏폼 트렌드 데이터를 조회합니다.  
+        한국 / 해외 / 중국 섹션 내에서 '전체', '맘플', '먹플', '헬플', '기타' 등을 선택했을 때 호출됩니다.
+      parameters:
+        - name: region
+          in: query
+          required: true
+          type: string
+          enum: [korea, global, china]
+          description: "조회할 지역명 (한국: korea, 해외: global, 중국: china)"
+        - name: category
+          in: query
+          required: false
+          type: string
+          enum: [all, parent, eat, health, etc]
+          description: "조회할 카테고리 (전체, 맘플, 먹플, 헬플, 기타)"
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          default: 16
+          description: "한 번에 불러올 숏폼 개수 (기본값 16)"
+        - name: page
+          in: query
+          required: false
+          type: integer
+          default: 1
+          description: "페이지 번호 (페이징 또는 인피니트 스크롤 시 사용)"
+      responses:
+        200:
+          description: "요청한 지역 및 카테고리의 숏폼 리스트 반환"
+          schema:
+            type: object
+            properties:
+              region:
+                type: string
+                example: "korea"
+              category:
+                type: string
+                example: "eat"
+              totalCount:
+                type: integer
+                example: 160
+              shorts:
+                type: array
+                items:
+                  $ref: "#/definitions/Short"
+
+  /shorts/{id}/comments:
+    get:
+      summary: "댓글 리스트 조회"
+      description: "특정 숏폼의 댓글 리스트를 불러옵니다."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: "댓글 리스트 반환"
+          schema:
+            type: object
+            properties:
+              shortId:
+                type: string
+              comments:
+                type: array
+                items:
+                  $ref: "#/definitions/Comment"
+
+  /search:
+    get:
+      summary: "통합 검색"
+      description: "키워드를 기반으로 모든 숏폼에서 제목, 설명, 닉네임을 검색합니다."
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          type: string
+          description: "검색할 키워드 (예: '다이소', '주방용품')"
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          default: 20
+          description: "한 번에 불러올 검색 결과 수"
+        - name: page
+          in: query
+          required: false
+          type: integer
+          default: 1
+          description: "페이지 번호"
+      responses:
+        200:
+          description: "검색 결과 반환"
+          schema:
+            type: object
+            properties:
+              totalCount:
+                type: integer
+                example: 100
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/Short"
+
+  /search/category:
+    get:
+      summary: "카테고리별 검색"
+      description: "특정 카테고리에서 키워드 검색을 수행합니다."
+      parameters:
+        - name: category
+          in: query
+          required: true
+          type: string
+          enum: [all, parent, eat, health, etc]
+          description: "검색할 카테고리"
+        - name: keyword
+          in: query
+          required: true
+          type: string
+          description: "검색 키워드"
+      responses:
+        200:
+          description: "카테고리 내 검색 결과 반환"
+          schema:
+            type: object
+            properties:
+              category:
+                type: string
+              totalCount:
+                type: integer
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/Short"
+
+  /search/country:
+    get:
+      summary: "국가별 검색"
+      description: "특정 국가(region) 내에서 키워드 검색을 수행합니다."
+      parameters:
+        - name: region
+          in: query
+          required: true
+          type: string
+          enum: [korea, global, china]
+          description: "검색할 지역명 (한국: korea, 해외: global, 중국: china)"
+        - name: keyword
+          in: query
+          required: true
+          type: string
+          description: "검색 키워드"
+      responses:
+        200:
+          description: "국가별 검색 결과 반환"
+          schema:
+            type: object
+            properties:
+              region:
+                type: string
+              totalCount:
+                type: integer
+              results:
+                type: array
+                items:
+                  $ref: "#/definitions/Short"
+
+definitions:
+  Short:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "abc123"
+      avatar:
+        type: string
+        format: uri
+        example: "https://cdn.shortman.com/avatar1.png"
+      nickname:
+        type: string
+        example: "lish.wist"
+      thumbnail:
+        type: string
+        format: uri
+        example: "https://cdn.shortman.com/thumb1.jpg"
+      source:
+        type: string
+        format: uri
+        example: "https://유튜브, 인스타, 틱톡"
+      description:
+        type: string
+        example: "도마꽂이로 도마만 꽂으시나요🥺 ..."
+      likes:
+        type: integer
+        example: 6102000
+      comments:
+        type: integer
+        example: 123
+      bookmarked:
+        type: boolean
+        example: false
+      liked:
+        type: boolean
+        example: true
+      video_url:
+        type: string
+        format: uri
+        example: "https://cdn.shortman.com/video1.mp4"
+
+  ShortDetail:
+    allOf:
+      - $ref: "#/definitions/Short"
+      - type: object
+        properties:
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+
+  Comment:
+    type: object
+    properties:
+      commentId:
+        type: string
+        example: "cmt_456"
+      nickname:
+        type: string
+        example: "lish.wist"
+      avatar:
+        type: string
+        format: uri
+        example: "https://cdn.shortman.com/avatar1.png"
+      comment:
+        type: string
+        example: "도마꽂이 너무 귀여워요!"
+      createdAt:
+        type: string
+        format: date-time

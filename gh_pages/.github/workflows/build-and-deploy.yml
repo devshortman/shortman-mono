@@ -1,0 +1,30 @@
+name: Backend Docker Image (optional)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages   # Dockerfile이 있는 브랜치로 체크아웃
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push
+        run: |
+          IMAGE=ghcr.io/${{ github.repository }}/crawler:latest
+          docker build -t "$IMAGE" ./short-man_backend/backend
+          docker push "$IMAGE"

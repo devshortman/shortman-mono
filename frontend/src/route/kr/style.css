@@ -1,0 +1,54 @@
+#kr {
+    .body {
+        padding: 6px 160px 80px 160px;
+        display: flex;
+        flex-direction: column;
+        gap: 60px;
+
+        .ca {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 100px;
+            gap: 24px;
+
+            >div:nth-child(1) {
+                font-size: 36px;
+                font-weight: bold;
+
+            }
+
+            >div:nth-child(2) {
+                display: flex;
+                gap: 8px;
+
+                .select {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    padding: 10px 30px;
+                    border-radius: 999px;
+                    background: #F1F1F1;
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #555555;
+                    cursor: pointer;
+
+                    
+                }
+
+                .on {
+                    color: #ffffff;
+                    background: linear-gradient(166deg, #A02EFF 8%, #23DAEF 80%);                }
+            }
+        }
+
+        .w {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            /* row-gap: 100px, column-gap: 32px */
+            gap: 100px 32px;
+            justify-content: center;
+        }
+    }
+}

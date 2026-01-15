@@ -1,0 +1,38 @@
+SHORT-MAN_BACKEND/
+├─ .github/workflows/         # CI/CD, 자동화 파이프라인
+│   ├─ build-and-deploy.yml   # 빌드 및 배포
+│   ├─ crawl-schedule.yml     # 주간 크롤링 스케줄러
+│   ├─ check-secrets.yml      # Secrets 검증
+│   ├─ api-smoke.yml          # API 임포트 테스트
+│   └─ api-health.yml         # REST 엔드포인트 헬스체크
+│
+├─ backend/                   # 백엔드 (FastAPI, 크롤러, 설정)
+│   ├─ config.py              # .env(dev/prod) 자동 로딩
+│   ├─ crawler.py             # Supabase 크롤러 & 데이터 업서트
+│   ├─ requirements.txt       # Python 의존성
+│   ├─ Dockerfile.api         # FastAPI 서버용
+│   ├─ Dockerfile.crawler     # 크롤러용
+│   ├─ test_env.py            # Supabase 연결 테스트
+│   ├─ test_api_health.py     # /trends 헬스체크 테스트
+│   ├─ .env                   # 로컬 개발용 (APP_ENV=dev)
+│   ├─ .env.prod              # 운영용 (APP_ENV=prod)
+│   ├─ .env.ci                # CI용 (선택)
+│   ├─ .gitignore             # 백엔드 전용 ignore
+│   └─ .dockerignore          # Docker 빌드 시 제외 설정
+│
+├─ supabase/                  # DB 마이그레이션 및 함수/뷰 정의
+│   ├─ 10_tables.core.sql
+│   ├─ 11_tables.platform_details.sql
+│   ├─ 20_views.weekly_top.sql
+│   ├─ 21_views.home_platforms_all.sql
+│   ├─ 30_policies.safe_read.sql
+│   ├─ 50_storage.buckets.sql
+│   ├─ 60_seed.dev.sql
+│   ├─ 61_seed.platforms_regions_extend.sql
+│   ├─ 70_functions.refresh_week.sql
+│   └─ 71_functions.refresh_week_view.sql
+│
+├─ README.md                  # 전체 프로젝트 설명
+├─ BACKEND_CRAWLER_OVERVIEW.md# 크롤러 구조/흐름 문서
+├─ .gitignore                 # 전체 공통 ignore 규칙
+└─ .dockerignore              # 전체 Docker 빌드 제외 규칙

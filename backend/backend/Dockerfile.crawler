@@ -1,0 +1,41 @@
+# backend/Dockerfile.crawler
+
+# 1) Base: Python 3.11 slim
+FROM python:3.11-slim
+
+# 2) 기본 환경 설정 (로그 버퍼링 방지, pyc 미생성)
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    APP_ENV=prod
+
+# 3) 타임존(선택): 한국 기준 로그 확인 편의
+ENV TZ=Asia/Seoul
+
+# 4) 시스템 패키지 (최소)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl tzdata \
+ && rm -rf /var/lib/apt/lists/*
+
+# 5) 작업 디렉토리
+WORKDIR /app
+
+# 6) 파이썬 의존성 먼저 설치 — 캐시 효율
+COPY backend/requirements.txt ./requirements.txt
+RUN python -m pip install --upgrade pip \
+ && pip install --no-cache-dir -r requirements.txt
+
+# 7) 애플리케이션 코드 복사
+#    (backend만 복사해서 컨텍스트 최소화)
+COPY backend/ ./backend/
+
+# 8) 비루트 사용자로 전환 (보안)
+RUN useradd -m -u 10001 appuser
+USER appuser
+
+# 9) 런타임: 크롤러 1회 실행
+#    ✱ 엔트리포인트는 실제 엔트리 스크립트와 맞춰 선택
+#    A) 모듈 실행: backend/main_crawl.py 가 있을 때 사용
+# CMD ["python", "-m", "backend.main_crawl"]
+#    B) 스크립트 실행: backend/crawler.py 기준 (권장: 현재 코드 기준)
+CMD ["python", "-m", "backend.crawler"]

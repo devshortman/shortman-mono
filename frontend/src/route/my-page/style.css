@@ -1,0 +1,493 @@
+#my {
+    font-family: 'Pretendard';
+
+    .body {
+        padding: 5vw 8vw;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+
+        .Skeleton{
+            font-size: 14px;
+            font-weight: 700;
+            color: #555555;
+            align-items: center;
+            display: flex;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: all 0.2s;
+            width: fit-content;
+            border-radius: 8px;
+
+            &:hover{
+                background-color: #DBDBDB;
+                transition: all 0.2s;
+            }
+        }
+
+        .account {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+
+            >div:first-child {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 25px;
+
+                .avatar {
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 99px;
+                    background-image: url('../../assets/image/avatar.svg');
+                    background-size: cover;
+                    background-position: center;
+                    position: relative;
+
+                    .badge {
+                        position: absolute;
+                        top: -8px;
+                        left: 30px;
+                        width: 40px;
+                        height: 20px;
+                        background-image: url('../../assets/image/mypage_badge.svg');
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                    }
+                }
+
+                .info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+
+                    >div {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+
+                        .bold {
+                            font-size: 22px;
+                            font-weight: bold;
+                        }
+
+                        .sub {
+                            font-size: 16px;
+                            color: #999999;
+                            font-weight: 400;
+                        }
+                    }
+
+                    .na {
+                        display: flex;
+                        align-items: center;
+                        flex-direction: row;
+                        gap: 8px;
+                    }
+
+                    .locale {
+                        font-size: 14px;
+                        color: #555555;
+
+                        .line {
+                            padding: 0px 5px;
+                            margin-right: 5px;
+                            height: 12px;
+                            border-right: 1.5px solid #DBDBDB;
+
+                        }
+
+                    }
+
+                }
+            }
+
+            .slist {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+
+                >img {
+                    display: flex;
+                    padding: 12px 13px;
+                    background: #F4F4F4;
+                    border-radius: 99px;
+                }
+            }
+        }
+
+        .count {
+            display: flex;
+            background: #EEEEEE;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: -20px;
+        }
+
+        .count>div {
+            flex: 1;
+            padding: 0px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+
+            >div:nth-child(1) {
+                font-size: 14px;
+                font-weight: 500;
+                color: #555555;
+            }
+
+            >div:nth-child(2) {
+                font-weight: bold;
+                font-size: 24px;
+            }
+
+        }
+
+        .count>div:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 60%;
+            width: 1px;
+            background-color: #CCCCCC;
+            margin: 0px 20px;
+        }
+
+        .calist {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .calist .left {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 20px;
+            width: calc(50% - 10px);
+        }
+
+        .calist .right {
+            width: calc(50% - 10px);
+            display: flex;
+            align-items: stretch;
+        }
+
+        .calist .card,
+        .calist .card2,
+        .calist .card3 {
+            border-radius: 8px;
+            min-height: 240px;
+            padding: 25px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            /* gap: 10px; */
+            color: #333;
+            position: relative;
+        }
+
+        .calist .card {
+            background: linear-gradient(151deg, #F7DCFE, #D2F5F5);
+        }
+
+        .calist .card2 {
+            background: linear-gradient(151deg, #C0D5FC, #F4CDFE);
+        }
+
+        .calist .card3 {
+            border: 3px solid #D9F6F9;
+        }
+
+        .card .title,
+        .card2 .title,
+        .card3 .title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555555;
+            margin-bottom: 18px;
+        }
+
+        .card .main-value,
+        .card2 .main-value,
+        .card3 .main-value {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .card .stats,
+        .card2 .stats,
+        .card3 .stats {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 40px;
+        }
+
+        .card .trend-icon,
+        .card2 .trend-icon,
+        .card3 .trend-icon {
+            width: 12px;
+            height: 12px;
+        }
+
+        .card .percent,
+        .card2 .percent,
+        .card3 .percent {
+            color: #746BFA;
+            font-weight: 600;
+        }
+
+        .card .period,
+        .card2 .period,
+        .card3 .period {
+            color: #999999;
+            font-size: 14px;
+        }
+
+        .card .description,
+        .card2 .description,
+        .card3 .description {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #999999;
+            line-height: 1.4;
+        }
+
+        .card .face,
+        .card2 .face,
+        .card3 .face {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7.5px;
+            font-size: 14px;
+            color: #26B6C6;
+        }
+
+        .card .face img,
+        .card2 .face img,
+        .card3 .face img {}
+
+        .calist .right .card4 {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+
+            .top {
+                padding: 0px 30px;
+                gap: 30px;
+                display: flex;
+                flex-direction: column;
+
+                .title {
+                    padding: 18px 10px;
+                    color: #555555;
+                    font-size: 14px;
+                    font-weight: 700;
+                    border-bottom: 1px solid #E3E3E3;
+                }
+
+
+                .chart {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                }
+            }
+
+            .bottom {
+                height: 100%;
+                display: flex;
+                flex-direction: row;
+                gap: 20px;
+
+                .fi {
+                    position: relative;
+                    /* ✅ Added for absolute positioning of .face */
+                    background: linear-gradient(151deg, #BFEEF9, #D2F5F5);
+                    padding: 27.5px 30px;
+                    flex: 3;
+                    border-radius: 16px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+
+                    .face {
+                        position: absolute;
+                        top: 20px;
+                        right: 20px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 7.5px;
+                        font-size: 14px;
+                        background: linear-gradient(151deg, #A02EFF, #23DAEF);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                    }
+
+                    .title {
+                        color: #555555;
+                        font-size: 14px;
+                        font-weight: 600;
+                    }
+
+                    .rating {
+                        display: flex;
+                        flex-direction: row;
+                        gap: 5px;
+                        align-items: baseline;
+
+                        .rate {
+                            font-weight: bold;
+                            font-size: 20px;
+
+                            >span {
+                                font-size: 36px;
+
+                            }
+                        }
+                    }
+
+                    .description {
+                        color: #999999;
+                        font-size: 12px;
+                    }
+
+
+                }
+
+                >div:last-child {
+                    border-radius: 16px;
+                    border: 1px solid #EEEEEE;
+                    flex: 1;
+                    padding: 25px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    font-size: 14px;
+                    color: #999999;
+
+
+                    .im {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-end;
+
+                        >img {
+                            cursor: pointer;
+                            width: 20px;
+
+                        }
+                    }
+                }
+            }
+        }
+
+        /* Responsive: stack right card below left section on smaller screens */
+        @media (max-width: 900px) {
+            .calist {
+                flex-direction: column;
+            }
+
+            .calist .left,
+            .calist .right {
+                width: 100%;
+            }
+
+            .calist .right .card {
+                height: auto;
+                min-height: 240px;
+            }
+        }
+
+        /* Responsive: change left grid to single column on very small screens */
+        @media (max-width: 600px) {
+            .calist .left {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 1fr);
+            }
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .body {
+            padding: 6vw;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .body {
+            padding: 7vw 5vw;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .body {
+            padding: 10vw 4vw;
+        }
+    }
+}
+
+.datalist {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.data-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: 500;
+    color: #555;
+}
+
+.data-item .label {
+    width: 150px;
+    color: #555555;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.data-item .dots {
+    display: flex;
+    gap: 1.5px;
+    justify-content: center;
+    flex: 1;
+}
+
+.data-item .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #d9d9d9;
+}
+
+.data-item .dot.active {
+    background-color: #26B6C6;
+}
+
+.data-item .grade {
+    width: 60px;
+    text-align: right;
+    font-weight: 600;
+}

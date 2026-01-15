@@ -1,0 +1,2 @@
+git config --global user.name "short-man_backend"
+git config --global user.email "cowork.2025dv@gmail.com"

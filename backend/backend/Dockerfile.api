@@ -1,0 +1,48 @@
+# backend/Dockerfile.api
+
+FROM python:3.11-slim
+
+# 런타임 기본 환경
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    APP_ENV=prod \
+    TZ=Asia/Seoul
+
+WORKDIR /app
+
+# 최소 시스템 패키지
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl tzdata \
+ && rm -rf /var/lib/apt/lists/*
+
+# 의존성 설치 (캐시 효율을 위해 먼저 복사)
+COPY backend/requirements.txt ./requirements.txt
+RUN python -m pip install --upgrade pip \
+ && pip install --no-cache-dir -r requirements.txt
+
+# 앱 코드 복사 (컨텍스트 최소화)
+COPY backend/ ./backend/
+
+# 비루트 유저
+RUN useradd -m -u 10001 appuser
+USER appuser
+
+# 서비스 포트
+EXPOSE 8080
+
+# 운영 권장: gunicorn + uvicorn worker
+# 워커/스레드 수는 호스트 CPU/메모리에 맞게 조정 (아래는 예시)
+#   -w 2 : 워커 2개
+#   -k uvicorn.workers.UvicornWorker : uvicorn 워커 사용
+#   --timeout 60 : 느린 응답 방지용 타임아웃
+#   --graceful-timeout 30 : 그레이스풀 셧다운
+CMD ["gunicorn", "backend.app.main:app", \
+     "-k", "uvicorn.workers.UvicornWorker", \
+     "-w", "2", \
+     "--bind", "0.0.0.0:8080", \
+     "--timeout", "60", \
+     "--graceful-timeout", "30"]
+
+# 개발/테스트용 간단 실행 (권장하지 않음)
+# CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]

@@ -1,0 +1,48 @@
+#home {
+
+    .body {
+        padding: 6px 160px 80px 160px;
+        display: flex;
+        flex-direction: column;
+        gap : 80px;
+
+        .line{
+            border-bottom: 1px solid #ECECEC;
+        }
+
+        .c {
+            display: flex;
+            flex-direction: column;
+            gap : 80px;
+
+            .h {
+                display: flex;
+                justify-content: space-between;
+                font-size: 30px;
+                align-items: center;
+                div span {
+                    font-weight: 700;
+                }
+
+                :nth-child(2){
+                    font-size: 16px;
+                    cursor: pointer;
+                    color: #555555;
+                    font-weight: 500;
+                }
+            }
+
+            .w {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                /* row-gap: 100px, column-gap: 32px */
+                gap: 100px 32px; 
+                justify-content: center;
+              }
+
+        }
+
+    }
+
+
+}

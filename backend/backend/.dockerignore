@@ -1,0 +1,48 @@
+# .dockerignore
+
+# Git & IDE
+.git
+.gitignore
+.vscode
+.idea
+*.code-workspace
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Environment files (보안상 복사 금지)
+backend/.env
+backend/.env.prod
+backend/.env.ci
+.env.local
+*.key
+*.pem
+
+# Tests
+tests/
+*.pytest_cache
+.coverage
+htmlcov/
+*.egg-info/
+
+# Docs & examples
+docs/
+examples/
+
+# Node / frontend (혹시 포함될 경우)
+node_modules/
+dist/
+build/
