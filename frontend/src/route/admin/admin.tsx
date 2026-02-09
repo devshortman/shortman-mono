@@ -14,12 +14,12 @@ export default function AdminKeywords() {
     setKeywords(data ?? []);
   }
 
-  async function addKeyword() {
-    if (!newKeyword.trim()) return;
-    await supabase.from('keywords').insert({ keyword: newKeyword });
-    setNewKeyword('');
-    fetchKeywords();
-  }
+  // async function addKeyword() {
+  //   if (!newKeyword.trim()) return;
+  //   await supabase.from('keywords').insert({ keyword: newKeyword });
+  //   setNewKeyword('');
+  //   fetchKeywords();
+  // }
 
   async function createTestUser() {
     setAuthMessage(null);
@@ -52,11 +52,11 @@ export default function AdminKeywords() {
 
   return (
     <div style={{ padding: 24, maxWidth: 600 }}>
-      <h2>키워드 관리</h2>
+      {/* <h2>키워드 관리</h2>
       <div style={{ marginBottom: 12 }}>
         <input value={newKeyword} onChange={(e) => setNewKeyword(e.target.value)} placeholder="새 키워드 입력" />
         <button onClick={addKeyword}>등록</button>
-      </div>
+      </div> */}
       <ul>
         {keywords.map((kw) => (
           <li key={kw.id}>
