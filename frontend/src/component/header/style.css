@@ -15,6 +15,7 @@
     .c {
         display: flex;
         flex-direction: row;
+        align-items: center;
         gap: 20px;
 
         >div,
@@ -23,7 +24,38 @@
             text-wrap: nowrap;
         }
 
+        .header-login-btn,
+        .header-logout-btn {
+            padding: 8px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            text-wrap: nowrap;
+        }
+
+        .header-login-btn {
+            color: #fff;
+            background: linear-gradient(166deg, #A02EFF 8%, #23DAEF 80%);
+        }
+
+        .header-login-btn:hover {
+            opacity: 0.95;
+        }
+
+        .header-logout-btn {
+            color: #555;
+            background: #f1f1f1;
+        }
+
+        .header-logout-btn:hover {
+            background: #e5e5e5;
+        }
+
         .avatar {
+            display: flex;
             width: 40px;
             height: 40px;
             border-radius: 99px;
@@ -49,12 +81,131 @@
         display: flex;
         width: 100%;
         flex-direction: row;
+        align-items: center;
         gap: 40px;
         font-size: 22px;
         font-weight: 500;
 
-        >div {
+        > div {
             cursor: pointer;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .nav-item:hover {
+            opacity: 0.85;
+        }
+
+        .nav-item .nav-icon {
+            width: 28px;
+            height: 28px;
+            display: block;
+            object-fit: contain;
+            filter: grayscale(100%) brightness(0.4);
+            transition: filter 0.2s;
+        }
+
+        .nav-item:hover .nav-icon {
+            filter: grayscale(0%) brightness(1);
+        }
+
+        .nav-item.active .nav-icon {
+            filter: grayscale(0%) brightness(1);
+        }
+
+        .nav-item span {
+            color: #333;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover span,
+        .nav-item.active span {
+            color: #000;
+            font-weight: 600;
+        }
+    }
+
+    /* 태블릿(중간): 769px ~ 1200px */
+    @media (max-width: 1200px) and (min-width: 769px) {
+        padding: 24px 48px;
+        gap: 32px;
+
+        > img {
+            width: 120px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .t {
+            gap: 24px;
+            font-size: 18px;
+        }
+
+        .t .nav-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .c {
+            gap: 16px;
+        }
+
+        .c img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .c .avatar {
+            width: 36px;
+            height: 36px;
+        }
+    }
+
+    /* 모바일: 768px 이하 */
+    @media (max-width: 768px) {
+        padding: 16px 20px;
+        gap: 12px;
+        flex-wrap: nowrap;
+
+        > img {
+            width: 100px;
+            min-width: 80px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .t {
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            /* justify-content: center; */
+            flex: 1;
+            min-width: 0;
+        }
+
+        .t .nav-icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        .c {
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .c img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .c .avatar {
+            width: 32px;
+            height: 32px;
         }
     }
 }

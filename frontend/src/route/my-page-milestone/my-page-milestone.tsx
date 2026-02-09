@@ -1,9 +1,8 @@
 import React from 'react';
-import Footer from '../../component/footer/footer';
-import Header from '../../component/header/header';
+import Footer from '../../component/footer/Footer';
+import Header from '../../component/header/Header';
 import './style.css';
 import Fresh from '../../assets/image/fresh.svg';
-import RadarChartComponent from '../../component/spider-chart/spider-chart';
 import { useNavigate } from 'react-router-dom';
 
 const MyPageMilestone = () => {

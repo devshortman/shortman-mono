@@ -10,7 +10,7 @@ import instagramIcon from '../../assets/image/insta.svg'
 import youtubeIcon from '../../assets/image/youtube.svg'
 import tiktokIcon from '../../assets/image/tiktok.svg'
 
-type CardInterface = {
+type ShortCardInterface = {
     avatar?: string;
     thumbnail?: string;
     source?: string;  // 플랫폼: instagram, youtube, tiktok
@@ -21,7 +21,7 @@ type CardInterface = {
     views?: number;
 }
 
-const Card: React.FC<CardInterface> = ({
+const ShortCard: React.FC<ShortCardInterface> = ({
     avatar,
     thumbnail,
     source,
@@ -106,4 +106,4 @@ const Card: React.FC<CardInterface> = ({
     );
 };
 
-export default Card;
+export default ShortCard;

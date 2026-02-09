@@ -14,7 +14,7 @@ const Footer = () => {
                 <div>
                     <div>사업자등록번호: 673-88-01348</div> <div className="line" />
                     <div>Tel : 02-381-9587</div><div className="line" />
-                    <div>문의 : crazy4dream@mannacompany.co.kr </div>
+                    <div>문의 : crazy4dream@mannacompany.co.kr </div>
                 </div>
                 <div>
                     <div>COPYRIGHT ⓒ 숏만랩 ALL RIGHTS RESERVED</div>

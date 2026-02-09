@@ -8,6 +8,7 @@
         .sw {
             background: #F8F8F8;
             width: 100%;
+            box-sizing: border-box;
             display: flex;
             align-items: center;
             flex-direction: column;
@@ -132,5 +133,116 @@
         }
 
 
+    }
+}
+
+/* 태블릿: 1024px 이하 */
+@media (max-width: 1024px) {
+    #search .body {
+        padding: 32px 40px 60px 40px;
+        gap: 40px;
+    }
+
+    #search .body .sw {
+        padding: 40px 24px;
+        gap: 24px;
+    }
+
+    #search .body .sw > div:nth-child(1) {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 24px;
+    }
+
+    #search .body .sw select {
+        width: 140px;
+        padding: 12px 14px;
+        font-size: 15px;
+        height: 46px;
+    }
+
+    #search .body .sw .custom-date-input {
+        width: 140px;
+        padding: 12px 14px;
+        font-size: 15px;
+        height: 46px;
+    }
+
+    #search .body .sw .search-input-wrapper {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    #search .body .w {
+        gap: 60px 24px;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+/* 모바일: 768px 이하 */
+@media (max-width: 768px) {
+    #search .body {
+        padding: 24px 20px 48px 20px;
+        gap: 32px;
+        box-sizing: border-box;
+    }
+
+    #search .body .sw {
+        padding: 24px 16px;
+        gap: 20px;
+        box-sizing: border-box;
+    }
+
+    #search .body .sw > div:nth-child(1) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        width: 100%;
+    }
+
+    #search .body .sw > div:nth-child(1) > div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    /* 카테고리 두 셀렉트 모바일에서 세로 배치 */
+    #search .body .sw > div:nth-child(1) > div:first-child {
+        flex-direction: column;
+    }
+
+    #search .body .sw > div:nth-child(1) > div:first-child select {
+        width: 100%;
+    }
+
+    #search .body .sw select {
+        width: 100%;
+        min-width: 0;
+        padding: 12px 14px;
+        font-size: 14px;
+        height: 44px;
+    }
+
+    #search .body .sw .custom-date-input {
+        width: 100%;
+        min-width: 0;
+        padding: 12px 14px;
+        font-size: 14px;
+        height: 44px;
+    }
+
+    #search .body .sw .search-input-wrapper {
+        width: 100%;
+        max-width: none;
+    }
+
+    #search .body .sw .search-input {
+        font-size: 14px;
+        padding: 14px 14px;
+    }
+
+    #search .body .w {
+        gap: 40px 16px;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
 }

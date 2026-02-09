@@ -1,26 +1,29 @@
 #footer {
     background-color: #000000;
-    /* width: 100%; */
     padding: 80px 160px;
     display: flex;
+    flex-direction: row;
+    align-items: flex-start;
     gap: 60px;
     color: #ACACAC;
     font-size: 14px;
+    line-height: 1.5;
 
-    >img{
-        height: 100%;
+    > img {
+        height: auto;
+        flex-shrink: 0;
     }
 
     .fc {
-        height: 100%;
         display: flex;
         flex-direction: column;
         gap: 6px;
+        min-width: 0;
 
-
-        >div {
+        > div {
             display: flex;
             flex-direction: row;
+            flex-wrap: wrap;
             gap: 10px;
 
             .line {
@@ -28,9 +31,55 @@
             }
         }
 
-        >div:last-child{
+        > div:last-child {
             color: #6E6E6E;
         }
     }
 
+    /* 태블릿(중간): 769px ~ 1200px */
+    @media (max-width: 1200px) and (min-width: 769px) {
+        padding: 48px 48px 60px;
+        gap: 40px;
+        font-size: 13px;
+
+        > img {
+            width: 100px;
+            height: auto;
+        }
+
+        .fc > div {
+            gap: 8px;
+        }
+    }
+
+    /* 모바일: 768px 이하 */
+    @media (max-width: 768px) {
+        padding: 32px 20px 40px;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        font-size: 12px;
+        text-align: center;
+
+        > img {
+            width: 80px;
+            height: auto;
+        }
+
+        .fc {
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .fc > div {
+            justify-content: center;
+            gap: 6px 10px;
+        }
+
+        .fc > div:last-child {
+            font-size: 11px;
+            color: #6E6E6E;
+        }
+    }
 }

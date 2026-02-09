@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import './style.css'
 import { data } from '../utils/source';
-import Card from '../../component/short-card/short-card';
-import Header from '../../component/header/header';
+import ShortCard from '../../component/short-card/ShortCard';
+import Header from '../../component/header/Header';
 
 import parent from '../../assets/image/parent.svg';
 import health from '../../assets/image/health.svg';
@@ -12,20 +12,26 @@ import eat from '../../assets/image/eat.svg';
 import parentOn from '../../assets/image/parent_on.svg';
 import healthOn from '../../assets/image/health_on.svg';
 import eatOn from '../../assets/image/eat_on.svg';
-import Footer from '../../component/footer/footer';
+import Footer from '../../component/footer/Footer';
 
 
 
 const Kr = () => {
     const location = useLocation();
-    const title =
-        location.pathname.includes('ch')
-            ? '중국 숏폼 트렌드'
-            : location.pathname.includes('glob')
-            ? '글로벌 숏폼 트렌드'
-            : '한국 숏폼 트렌드';
+    const path = location.pathname.replace(/^#?\//, '') || '';
 
-    
+    const title =
+        path === 'shorts'
+            ? '유튜브 쇼츠 트렌드'
+            : path === 'reels'
+            ? '릴스 트렌드'
+            : path === 'tiktok'
+            ? '틱톡 트렌드'
+            : '숏폼 트렌드';
+
+    const platformFilter: 'youtube' | 'instagram' | 'tiktok' | null =
+        path === 'shorts' ? 'youtube' : path === 'reels' ? 'instagram' : path === 'tiktok' ? 'tiktok' : null;
+
     const categories = [
         { id: 'all', name: '전체', icon: null, iconOn: null },
         { id: 'parent', name: '맘플 (육아/키즈)', icon: parent, iconOn: parentOn },
@@ -66,9 +72,12 @@ const Kr = () => {
 
 
                 <div className='w'>
-                    {data?.map((e: any, i: any) =>
-                        <Card avatar={e?.avatar} thumbnail={e?.thumbnail} source={e?.source} key={i}></Card>
-                    )}
+                    {data
+                        ?.filter((e: any) => !platformFilter || e?.platform === platformFilter)
+                        ?.slice(0, 8)
+                        ?.map((e: any, i: any) => (
+                            <ShortCard avatar={e?.avatar} thumbnail={e?.thumbnail} source={e?.platform ?? e?.source} key={i} />
+                        ))}
                 </div>
             </div>
             <Footer></Footer>

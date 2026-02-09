@@ -1,0 +1,87 @@
+#user-login {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#user-login .login-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px 80px;
+}
+
+#user-login .login-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eee;
+}
+
+#user-login .login-box h1 {
+  margin: 0 0 28px;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  color: #111;
+}
+
+#user-login .login-box form label {
+  display: block;
+  margin-bottom: 20px;
+}
+
+#user-login .login-box form label span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+#user-login .login-box form input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+#user-login .login-box form input:focus {
+  outline: none;
+  border-color: #A02EFF;
+  box-shadow: 0 0 0 2px rgba(160, 46, 255, 0.15);
+}
+
+#user-login .login-box form .error {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #c00;
+}
+
+#user-login .login-box form button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(166deg, #A02EFF 8%, #23DAEF 80%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#user-login .login-box form button:hover:not(:disabled) {
+  opacity: 0.95;
+}
+
+#user-login .login-box form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

@@ -1,54 +1,146 @@
 #kr {
     .body {
-        padding: 6px 160px 80px 160px;
+        padding: 6px 280px 80px 280px;
         display: flex;
         flex-direction: column;
         gap: 60px;
+    }
 
-        .ca {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 100px;
-            gap: 24px;
+    /* 카테고리: 웹 */
+    .body .ca {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 100px;
+        gap: 24px;
+    }
 
-            >div:nth-child(1) {
-                font-size: 36px;
-                font-weight: bold;
+    .body .ca > div:nth-child(1) {
+        font-size: 36px;
+        font-weight: bold;
+    }
 
-            }
+    .body .ca > div:nth-child(2) {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
 
-            >div:nth-child(2) {
-                display: flex;
-                gap: 8px;
+    .body .ca .select {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 10px 30px;
+        border-radius: 999px;
+        background: #F1F1F1;
+        font-size: 18px;
+        font-weight: 600;
+        color: #555555;
+        cursor: pointer;
+    }
 
-                .select {
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                    padding: 10px 30px;
-                    border-radius: 999px;
-                    background: #F1F1F1;
-                    font-size: 18px;
-                    font-weight: 600;
-                    color: #555555;
-                    cursor: pointer;
+    .body .ca .select.on {
+        color: #ffffff;
+        background: linear-gradient(166deg, #A02EFF 8%, #23DAEF 80%);
+    }
 
-                    
-                }
+    /* 카드 그리드: 홈과 동일 (4열, 1fr) */
+    .body .w {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 32px 24px;
+        justify-content: center;
+    }
 
-                .on {
-                    color: #ffffff;
-                    background: linear-gradient(166deg, #A02EFF 8%, #23DAEF 80%);                }
-            }
+    /* ========== 태블릿: 769px ~ 1200px ========== */
+    @media (max-width: 1200px) {
+        .body {
+            padding: 6px 80px 60px 80px;
+            gap: 48px;
         }
 
-        .w {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            /* row-gap: 100px, column-gap: 32px */
-            gap: 100px 32px;
-            justify-content: center;
+        .body .ca {
+            margin-top: 60px;
+            gap: 20px;
+        }
+
+        .body .ca > div:nth-child(1) {
+            font-size: 28px;
+        }
+
+        .body .ca .select {
+            padding: 8px 24px;
+            font-size: 16px;
+        }
+
+        .body .w {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px 20px;
+        }
+
+        .body .w > *:nth-child(n + 5) {
+            display: none;
+        }
+    }
+
+    /* ========== 모바일: 768px 이하 ========== */
+    @media (max-width: 768px) {
+        .body {
+            padding: 6px 20px 40px 20px;
+            gap: 32px;
+        }
+
+        .body .ca {
+            margin-top: 24px;
+            gap: 16px;
+        }
+
+        .body .ca > div:nth-child(1) {
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .body .ca > div:nth-child(2) {
+            gap: 6px;
+            padding: 0 8px;
+        }
+
+        .body .ca .select {
+            padding: 8px 16px;
+            font-size: 14px;
+            gap: 3px;
+        }
+
+        .body .ca .select img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        .body .w {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px 16px;
+        }
+
+        .body .w > *:nth-child(n + 5) {
+            display: none;
+        }
+    }
+
+    /* 초소형 모바일: 480px 이하 */
+    @media (max-width: 480px) {
+        .body .ca > div:nth-child(1) {
+            font-size: 20px;
+        }
+
+        .body .ca .select {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .body .w {
+            gap: 20px 12px;
         }
     }
 }

@@ -171,9 +171,82 @@
         .calist .left {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr) auto;
             gap: 20px;
             width: calc(50% - 10px);
+        }
+
+        .calist .left .nox-score-left {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: linear-gradient(151deg, #BFEEF9, #D2F5F5);
+            padding: 27.5px 30px;
+            border-radius: 16px;
+            position: relative;
+        }
+
+        .calist .left .nox-score-left .nox-title {
+            color: #555555;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .calist .left .nox-score-left .chart {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .calist .left .nox-score-left .fi {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .calist .left .nox-score-left .fi .face {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7.5px;
+            font-size: 14px;
+            background: linear-gradient(151deg, #A02EFF, #23DAEF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .calist .left .nox-score-left .fi .title {
+            color: #555555;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .calist .left .nox-score-left .fi .rating {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            align-items: baseline;
+        }
+
+        .calist .left .nox-score-left .fi .rating .rate {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .calist .left .nox-score-left .fi .rating .rate > span {
+            font-size: 36px;
+        }
+
+        .calist .left .nox-score-left .fi .description {
+            color: #999999;
+            font-size: 12px;
         }
 
         .calist .right {
@@ -303,7 +376,6 @@
                     border-bottom: 1px solid #E3E3E3;
                 }
 
-
                 .chart {
                     display: flex;
                     flex-direction: row;
@@ -311,136 +383,575 @@
                 }
             }
 
-            .bottom {
-                height: 100%;
+            .update-info {
+                margin: 20px 30px 0;
+                padding: 20px 24px;
+                border-radius: 12px;
+                border: 1px solid #EEEEEE;
                 display: flex;
                 flex-direction: row;
-                gap: 20px;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                font-size: 14px;
+                color: #999999;
+                background: #fafafa;
 
-                .fi {
-                    position: relative;
-                    /* ✅ Added for absolute positioning of .face */
-                    background: linear-gradient(151deg, #BFEEF9, #D2F5F5);
-                    padding: 27.5px 30px;
-                    flex: 3;
-                    border-radius: 16px;
+                .im {
                     display: flex;
-                    flex-direction: column;
-                    gap: 10px;
+                    align-items: center;
 
-                    .face {
-                        position: absolute;
-                        top: 20px;
-                        right: 20px;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        gap: 7.5px;
-                        font-size: 14px;
-                        background: linear-gradient(151deg, #A02EFF, #23DAEF);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                    }
-
-                    .title {
-                        color: #555555;
-                        font-size: 14px;
-                        font-weight: 600;
-                    }
-
-                    .rating {
-                        display: flex;
-                        flex-direction: row;
-                        gap: 5px;
-                        align-items: baseline;
-
-                        .rate {
-                            font-weight: bold;
-                            font-size: 20px;
-
-                            >span {
-                                font-size: 36px;
-
-                            }
-                        }
-                    }
-
-                    .description {
-                        color: #999999;
-                        font-size: 12px;
-                    }
-
-
-                }
-
-                >div:last-child {
-                    border-radius: 16px;
-                    border: 1px solid #EEEEEE;
-                    flex: 1;
-                    padding: 25px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                    font-size: 14px;
-                    color: #999999;
-
-
-                    .im {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: flex-end;
-
-                        >img {
-                            cursor: pointer;
-                            width: 20px;
-
-                        }
+                    >img {
+                        cursor: pointer;
+                        width: 20px;
                     }
                 }
             }
         }
 
-        /* Responsive: stack right card below left section on smaller screens */
-        @media (max-width: 900px) {
+        .user-info-section {
+            min-height: 120px;
+
+            .user-info-content {
+                padding: 20px 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .user-info-row {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                font-size: 14px;
+            }
+
+            .user-info-label {
+                width: 80px;
+                color: #555555;
+                font-weight: 500;
+            }
+
+            .user-info-value {
+                color: #333;
+            }
+
+            .user-info-value.user-id {
+                font-size: 12px;
+                color: #999;
+                word-break: break-all;
+            }
+
+            .user-info-social {
+                margin-top: 16px;
+                padding-top: 16px;
+                border-top: 1px solid #eee;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .user-info-input {
+                flex: 1;
+                min-width: 0;
+                padding: 8px 12px;
+                font-size: 14px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+            }
+
+            .user-info-input:focus {
+                outline: none;
+                border-color: #A02EFF;
+            }
+
+            .user-info-social-actions {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 12px;
+                margin-top: 8px;
+            }
+
+            .user-info-save-btn {
+                padding: 8px 20px;
+                font-size: 14px;
+                font-weight: 600;
+                color: #fff;
+                background: linear-gradient(166deg, #A02EFF 8%, #23DAEF 80%);
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+
+            .user-info-save-btn:hover {
+                opacity: 0.9;
+            }
+
+            .user-info-save-msg {
+                font-size: 13px;
+                color: #0a0;
+            }
+
+            .user-info-empty {
+                padding: 20px 10px;
+                color: #999;
+                font-size: 14px;
+            }
+        }
+
+        /* ========== 태블릿: 769px ~ 1200px ========== */
+        @media (max-width: 1200px) {
+            .body {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-rows: auto 1fr;
+                gap: 20px;
+                align-items: start;
+            }
+
+            .calist {
+                display: contents;
+            }
+
+            .calist .right {
+                grid-column: 1 / -1;
+                grid-row: 1;
+                width: 100%;
+            }
+
+            .account {
+                grid-column: 1;
+                grid-row: 2;
+                width: 100%;
+            }
+
+            .count {
+                grid-column: 2;
+                grid-row: 2;
+                width: 100%;
+                margin-top: 0;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .count > div {
+                padding: 8px 0;
+            }
+
+            .count > div:not(:last-child)::after {
+                display: none;
+            }
+
+            .calist .left {
+                grid-column: 3;
+                grid-row: 2;
+                width: 100%;
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, auto) auto;
+                gap: 16px;
+            }
+
+            .calist .left .nox-score-left {
+                padding: 20px 20px;
+            }
+
+            .calist .left .nox-score-left .chart {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .calist .left .nox-score-left .chart > div:first-child {
+                display: flex;
+                justify-content: center;
+            }
+
+            .calist .right .card4 .top {
+                padding: 0 24px;
+            }
+
+            .calist .right .card4 .update-info {
+                margin: 20px 24px 0;
+                padding: 18px 20px;
+            }
+        }
+
+        /* ========== 모바일: 768px 이하 ========== */
+        @media (max-width: 768px) {
             .calist {
                 flex-direction: column;
             }
 
-            .calist .left,
             .calist .right {
+                order: -1;
+            }
+
+            .calist .left {
+                order: 0;
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, auto) auto;
+                gap: 16px;
+            }
+
+            .calist .left .nox-score-left {
+                padding: 20px 16px;
+                gap: 16px;
+            }
+
+            .calist .left .nox-score-left .nox-title {
+                font-size: 13px;
+            }
+
+            .calist .left .nox-score-left .chart {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .calist .left .nox-score-left .chart > div:first-child {
+                max-width: 100%;
+                overflow: hidden;
+            }
+
+            .calist .left .nox-score-left .chart .datalist {
+                margin-top: 12px;
+            }
+
+            .calist .left .nox-score-left .fi .rating .rate > span {
+                font-size: 28px;
+            }
+
+            .calist .left .nox-score-left .fi .description {
+                font-size: 11px;
+            }
+
+            .calist .right .card4 .top {
+                padding: 0 16px;
+            }
+
+            .calist .right .card4 .update-info {
+                margin: 16px 16px 0;
+                padding: 16px 18px;
+                font-size: 13px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .user-info-row {
+                flex-wrap: wrap;
+            }
+
+            .user-info-label {
+                width: 70px;
+            }
+
+            .user-info-input {
                 width: 100%;
             }
 
-            .calist .right .card {
-                height: auto;
-                min-height: 240px;
-            }
-        }
-
-        /* Responsive: change left grid to single column on very small screens */
-        @media (max-width: 600px) {
-            .calist .left {
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(4, 1fr);
+            .user-info-social-actions {
+                flex-wrap: wrap;
             }
         }
     }
 
+    /* ========== 태블릿: 769px ~ 1200px ========== */
     @media (max-width: 1200px) {
         .body {
-            padding: 6vw;
+            padding: 40px 48px 60px;
+            gap: 32px;
+        }
+
+        .account > div:first-child .avatar {
+            width: 52px;
+            height: 52px;
+        }
+
+        .account > div:first-child .info .bold {
+            font-size: 20px;
+        }
+
+        .account > div:first-child .info .sub {
+            font-size: 14px;
+        }
+
+        .account .slist > img {
+            padding: 10px 11px;
+        }
+
+        .count {
+            padding: 16px;
+            margin-top: -16px;
+        }
+
+        .count > div > div:nth-child(2) {
+            font-size: 20px;
+        }
+
+        .calist .card,
+        .calist .card2,
+        .calist .card3 {
+            min-height: 200px;
+            padding: 20px 16px;
+        }
+
+        .calist .card .main-value,
+        .calist .card2 .main-value,
+        .calist .card3 .main-value {
+            font-size: 28px;
+        }
+
+        .calist .card .stats,
+        .calist .card2 .stats,
+        .calist .card3 .stats {
+            margin-bottom: 24px;
+        }
+
+        .calist .card .description,
+        .calist .card2 .description,
+        .calist .card3 .description {
+            font-size: 13px;
+        }
+
+        .calist .card .face,
+        .calist .card2 .face,
+        .calist .card3 .face {
+            top: 16px;
+            right: 16px;
+            font-size: 13px;
         }
     }
 
-    @media (max-width: 900px) {
+    /* ========== 모바일: 768px 이하 ========== */
+    @media (max-width: 768px) {
         .body {
-            padding: 7vw 5vw;
+            padding: 24px 20px 48px;
+            gap: 24px;
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .account {
+            width: 100%;
+            box-sizing: border-box;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            gap: 16px;
+        }
+
+        .account > div:first-child {
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+        }
+
+        .account > div:first-child .info {
+            text-align: left;
+            align-items: flex-start;
+        }
+
+        .account > div:first-child .info .na,
+        .account > div:first-child .info .locale {
+            justify-content: flex-start;
+        }
+
+        .account > div:first-child .avatar {
+            width: 48px;
+            height: 48px;
+        }
+
+        .account > div:first-child .avatar .badge {
+            width: 32px;
+            height: 16px;
+            left: 24px;
+        }
+
+        .account > div:first-child .info .bold {
+            font-size: 18px;
+        }
+
+        .account > div:first-child .info .sub {
+            font-size: 13px;
+        }
+
+        .account > div:first-child .info .locale {
+            font-size: 12px;
+        }
+
+        .account .slist {
+            display: none;
+        }
+
+        .account .slist > img {
+            padding: 8px 10px;
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .count {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            margin-top: -8px;
+            margin-left: 0;
+            margin-right: 0;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .count > div {
+            padding: 4px 8px;
+            min-width: 0;
+            flex: 1 1 calc(50% - 8px);
+            box-sizing: border-box;
+        }
+
+        .count > div > div:nth-child(1) {
+            font-size: 11px;
+        }
+
+        .count > div > div:nth-child(2) {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .count > div:not(:last-child)::after {
+            display: none;
+        }
+
+        .calist {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .calist .left,
+        .calist .right {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .calist .card,
+        .calist .card2,
+        .calist .card3 {
+            min-height: 180px;
+            padding: 16px 14px;
+        }
+
+        .calist .card .title,
+        .calist .card2 .title,
+        .calist .card3 .title {
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .calist .card .main-value,
+        .calist .card2 .main-value,
+        .calist .card3 .main-value {
+            font-size: 24px;
+        }
+
+        .calist .card .stats,
+        .calist .card2 .stats,
+        .calist .card3 .stats {
+            margin-bottom: 16px;
+            gap: 4px;
+        }
+
+        .calist .card .period,
+        .calist .card2 .period,
+        .calist .card3 .period {
+            font-size: 12px;
+        }
+
+        .calist .card .description,
+        .calist .card2 .description,
+        .calist .card3 .description {
+            font-size: 12px;
+        }
+
+        .calist .card .face,
+        .calist .card2 .face,
+        .calist .card3 .face {
+            top: 12px;
+            right: 12px;
+            font-size: 12px;
+        }
+
+        .calist .card .face img,
+        .calist .card2 .face img,
+        .calist .card3 .face img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .user-info-section {
+            text-align: left;
+        }
+
+        .user-info-section .user-info-content {
+            padding: 16px 6px;
+            align-items: flex-start;
+        }
+
+        .user-info-section .user-info-row {
+            font-size: 13px;
+            gap: 12px;
+            justify-content: flex-start;
+        }
+
+        .user-info-section .user-info-social {
+            margin-top: 12px;
+            padding-top: 12px;
+        }
+
+        .user-info-section .user-info-save-btn {
+            padding: 6px 16px;
+            font-size: 13px;
         }
     }
 
-    @media (max-width: 600px) {
+    /* 초소형 모바일: 480px 이하 */
+    @media (max-width: 480px) {
         .body {
-            padding: 10vw 4vw;
+            padding: 20px 16px 40px;
+            gap: 20px;
+        }
+
+        .count {
+            padding: 8px 10px;
+            gap: 6px;
+        }
+
+        .count > div {
+            padding: 2px 6px;
+            flex: 1 1 calc(50% - 6px);
+            border-bottom: none;
+        }
+
+        .count > div > div:nth-child(1) {
+            font-size: 10px;
+        }
+
+        .count > div > div:nth-child(2) {
+            font-size: 14px;
+        }
+
+        .data-item .label {
+            width: 120px;
+            font-size: 13px;
+        }
+
+        .data-item .grade {
+            width: 50px;
+            font-size: 13px;
         }
     }
 }

@@ -1,14 +1,14 @@
 import React, { useState, forwardRef } from 'react';
 import './style.css'
 import { data } from '../utils/source';
-import Card from '../../component/short-card/short-card';
-import Header from '../../component/header/header';
+import ShortCard from '../../component/short-card/ShortCard';
+import Header from '../../component/header/Header';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import DateIcon from '../../assets/image/datepicker.svg'
 import SearchIcon from '../../assets/image/search_icon.svg'
 import { ko } from 'date-fns/locale';
-import Footer from '../../component/footer/footer';
+import Footer from '../../component/footer/Footer';
 
 const CustomInput = forwardRef(({ value, onClick }: any, ref: any) => (
     <div className="custom-date-input" onClick={onClick} ref={ref}>
@@ -81,7 +81,7 @@ const Search = () => {
 
                 <div className='w'>
                     {data?.map((e: any, i: any) =>
-                        <Card avatar={e?.avatar} thumbnail={e?.thumbnail} source={e?.source} key={i}></Card>
+                        <ShortCard avatar={e?.avatar} thumbnail={e?.thumbnail} source={e?.source} key={i}></ShortCard>
                     )}
                 </div>
             </div>

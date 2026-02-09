@@ -13,7 +13,7 @@ import "./style.css";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
-const RadarChartComponent = () => {
+const SpiderChart = () => {
     const data = {
         labels: ["구독자 성장율", "구독자 충성도", "인게이지먼트 비율", "채널 품질", "콘텐츠 제작 빈도"],
         datasets: [
@@ -37,17 +37,11 @@ const RadarChartComponent = () => {
                 angleLines: {
                     color: "#e5e5e5",
                 },
-                // grid: {
-                //     color: (context: any) => {
-                //         // Alternate gray and white rings for background layers
-                //         return context.index % 2 === 0 ? "#F7F7F7" : "#FFFFFF";
-                //     },
-                // },
                 suggestedMin: 0,
                 suggestedMax: 5,
                 ticks: {
                     display: false,
-                    stepSize: 1, // ✅ 0~5까지 1씩 증가 → 5개의 레이어
+                    stepSize: 1,
                 },
                 pointLabels: {
                     color: "#999999",
@@ -69,7 +63,7 @@ const RadarChartComponent = () => {
             },
         },
         interaction: {
-            mode: undefined, // Disable hover/click highlight borders
+            mode: undefined,
         },
     };
 
@@ -80,4 +74,4 @@ const RadarChartComponent = () => {
     );
 };
 
-export default RadarChartComponent;
+export default SpiderChart;

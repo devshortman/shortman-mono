@@ -1,6 +1,6 @@
-import React from 'react';
-import Footer from '../../component/footer/footer';
-import Header from '../../component/header/header';
+import { useEffect, useState } from 'react';
+import Footer from '../../component/footer/Footer';
+import Header from '../../component/header/Header';
 import Tiktok from '../../assets/image/tiktok.svg';
 import Youtube from '../../assets/image/youtube.svg';
 import Insta from '../../assets/image/insta.svg';
@@ -12,11 +12,48 @@ import Fresh from '../../assets/image/fresh.svg';
 import Up from '../../assets/image/up.svg';
 import Down from '../../assets/image/down.svg';
 import './style.css'
-import RadarChartComponent from '../../component/spider-chart/spider-chart';
+import SpiderChart from '../../component/spider-chart/SpiderChart';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../supabaseClient';
+import type { User } from '@supabase/supabase-js';
 
 const MyPage = () => {
     const navigate = useNavigate();
+    const [user, setUser] = useState<User | null>(null);
+    const [youtube, setYoutube] = useState('');
+    const [instagram, setInstagram] = useState('');
+    const [tiktok, setTiktok] = useState('');
+    const [socialSaveMsg, setSocialSaveMsg] = useState<string | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+        return () => subscription.unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        const meta = user?.user_metadata;
+        if (meta) {
+            setYoutube(meta.youtube ?? '');
+            setInstagram(meta.instagram ?? '');
+            setTiktok(meta.tiktok ?? '');
+        }
+    }, [user]);
+
+    const saveSocialAccounts = async () => {
+        if (!user) return;
+        setSocialSaveMsg(null);
+        const { error } = await supabase.auth.updateUser({
+            data: { youtube, instagram, tiktok },
+        });
+        if (error) setSocialSaveMsg('저장 실패: ' + error.message);
+        else {
+            setSocialSaveMsg('저장되었습니다.');
+            setTimeout(() => setSocialSaveMsg(null), 2000);
+        }
+    };
 
     const data = [
         { label: "팔로워", value: "7300K", icon: "up", status: "+0.97%", period: "30일 기준", description: "0.6896-1.22%는 유사한 채널의 평균적인 팔로워수 증가 등급을 나타내는 수치입니다.", face: Normal, grade: "일반", card: "2" },
@@ -55,16 +92,17 @@ const MyPage = () => {
                                 <div>스페인어</div><div className='line' />
                             </div>
                         </div>
-                    </div>
-
-                    <div className='slist'>
                         <div className='Skeleton' onClick={() => navigate('/my-sample')}>Concept
                             <img src={Fresh} alt="Fresh" />
                         </div>
+                    </div>
+
+                    {/* <div className='slist'>
+                       
                         <img src={Tiktok} alt="Tiktok" />
                         <img src={Youtube} alt="Youtube" />
                         <img src={Insta} alt="Insta" />
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className='count'>
@@ -102,77 +140,140 @@ const MyPage = () => {
                                 }
                             </div>
                         ))}
+                        <div className='nox-score-left'>
+                            <div className='nox-title'>Nox Score 지표</div>
+                            <div className='chart'>
+                                <SpiderChart />
+                                <div className='datalist'>
+                                    {dataList.map((item, index) => (
+                                        <div key={index} className="data-item">
+                                            <div className="label">{item.label}</div>
+                                            <div className="dots">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className={`dot ${i < item.score ? "active" : ""}`}
+                                                        style={
+                                                            i < item.score
+                                                                ? item.color.includes("linear")
+                                                                    ? { background: item.color }
+                                                                    : { backgroundColor: item.color }
+                                                                : {}
+                                                        }
+                                                    ></span>
+                                                ))}
+                                            </div>
+                                            <div className="grade"
+                                                style={
+                                                    item.color.includes("linear")
+                                                        ? {
+                                                            background: item.color,
+                                                            WebkitBackgroundClip: "text",
+                                                            WebkitTextFillColor: "transparent",
+                                                        }
+                                                        : { color: item.color }
+                                                }>
+                                                {item.grade}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className='fi'>
+                                <div className='title'>Nox Score</div>
+                                <div className='rating'>
+                                    <div className='rate'><span>4.29</span>/5</div>
+                                    <div>별별별별</div>
+                                </div>
+                                <div className="description">
+                                    NoxScore은 5개 지표데이터로 구성(구독자 성장율, 콘텐츠 제작 빈도, 채널 품질, 구독자출성도, 참여용)되며, 1부터 5까지 총 5개 등급으로 분류됩니다.
+                                </div>
+                                {/* <div className='face'>
+                                    <img src={Good} alt="face" />
+                                    <div>최우수</div>
+                                </div> */}
+                            </div>
+                        </div>
                     </div>
                     <div className='right'>
                         <div className='card4'>
-                            <div className='top'>
-                                <div className='title'>Nox Score 지표</div>
-
-                                <div className='chart'>
-                                    <RadarChartComponent></RadarChartComponent>
-                                    <div className='datalist'>
-                                        {dataList.map((item, index) => (
-                                            <div key={index} className="data-item">
-                                                <div className="label">{item.label}</div>
-                                                <div className="dots">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <span
-                                                            key={i}
-                                                            className={`dot ${i < item.score ? "active" : ""}`}
-                                                            style={
-                                                                i < item.score
-                                                                    ? item.color.includes("linear")
-                                                                        ? { background: item.color }
-                                                                        : { backgroundColor: item.color }
-                                                                    : {}
-                                                            }
-                                                        ></span>
-                                                    ))}
+                            <div className='top user-info-section'>
+                                <div className='title'>사용자 정보</div>
+                                <div className='user-info-content'>
+                                    {user ? (
+                                        <>
+                                            <div className='user-info-row'>
+                                                <span className='user-info-label'>이메일</span>
+                                                <span className='user-info-value'>{user.email}</span>
+                                            </div>
+                                            <div className='user-info-row'>
+                                                <span className='user-info-label'>가입일</span>
+                                                <span className='user-info-value'>
+                                                    {user.created_at
+                                                        ? new Date(user.created_at).toLocaleDateString('ko-KR', {
+                                                            year: 'numeric',
+                                                            month: 'long',
+                                                            day: 'numeric',
+                                                        })
+                                                        : '-'}
+                                                </span>
+                                            </div>
+                                            <div className='user-info-row'>
+                                                <span className='user-info-label'>User ID</span>
+                                                <span className='user-info-value user-id'>{user.id}</span>
+                                            </div>
+                                            <div className='user-info-social'>
+                                                <div className='user-info-row'>
+                                                    <span className='user-info-label'>YouTube</span>
+                                                    <input
+                                                        type="text"
+                                                        value={youtube}
+                                                        onChange={(e) => setYoutube(e.target.value)}
+                                                        placeholder="채널 URL 또는 @username"
+                                                        className='user-info-input'
+                                                    />
                                                 </div>
-                                                <div className="grade"
-                                                    style={
-                                                        item.color.includes("linear")
-                                                            ? {
-                                                                background: item.color,
-                                                                WebkitBackgroundClip: "text",
-                                                                WebkitTextFillColor: "transparent",
-                                                            }
-                                                            : { color: item.color }
-                                                    }>
-                                                    {item.grade}
+                                                <div className='user-info-row'>
+                                                    <span className='user-info-label'>Instagram</span>
+                                                    <input
+                                                        type="text"
+                                                        value={instagram}
+                                                        onChange={(e) => setInstagram(e.target.value)}
+                                                        placeholder="채널 URL 또는 @username"
+                                                        className='user-info-input'
+                                                    />
+                                                </div>
+                                                <div className='user-info-row'>
+                                                    <span className='user-info-label'>TikTok</span>
+                                                    <input
+                                                        type="text"
+                                                        value={tiktok}
+                                                        onChange={(e) => setTiktok(e.target.value)}
+                                                        placeholder="채널 URL 또는 @username"
+                                                        className='user-info-input'
+                                                    />
+                                                </div>
+                                                <div className='user-info-social-actions'>
+                                                    <button type="button" onClick={saveSocialAccounts} className='user-info-save-btn'>
+                                                        저장
+                                                    </button>
+                                                    {socialSaveMsg && <span className='user-info-save-msg'>{socialSaveMsg}</span>}
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </>
+                                    ) : (
+                                        <p className='user-info-empty'>로그인이 필요합니다.</p>
+                                    )}
                                 </div>
                             </div>
 
-                            <div className='bottom'>
-                                <div className='fi'>
-                                    <div className='title'>Nox Score</div>
-                                    <div className='rating'>
-                                        <div className='rate'><span>4.29</span>/5</div>
-
-                                        <div>별별별별</div>
-                                    </div>
-                                    <div className="description">
-                                        NoxScore은 5개 지표데이터로 구성(구독자 성장율, 콘텐츠 제작 빈도, 채널 품질, 구독자출성도, 참여용)되며, 1부터 5까지 총 5개 등급으로 분류됩니다.
-                                    </div>
-
-                                    <div className='face'>
-                                        <img src={Good} alt="face" />
-                                        <div>최우수</div>
-                                    </div>
+                            <div className='update-info'>
+                                <div className='im'>
+                                    <img src={Fresh} alt="Fresh" />
                                 </div>
-
                                 <div>
-                                    <div className='im'>
-                                        <img src={Fresh} alt="Fresh" />
-                                    </div>
-                                    <div>
-                                        <div>업데이트 : </div>
-                                        <div>2024-03-02 11:56:19</div>
-                                    </div>
+                                    <div>업데이트 : </div>
+                                    <div>2024-03-02 11:56:19</div>
                                 </div>
                             </div>
                         </div>

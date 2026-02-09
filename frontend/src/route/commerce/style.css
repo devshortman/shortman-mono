@@ -85,6 +85,7 @@
                         display: flex;
                         flex-direction: row;
                         gap: 10px;
+                        margin-top: 10px;
                     }
 
                     .btn {
@@ -361,5 +362,278 @@
             justify-content: space-between;
             flex : 1;
         }
+    }
+}
+
+/* 태블릿: 1024px 이하 */
+@media (max-width: 1024px) {
+    #commerce .container {
+        padding: 6px 40px 60px 40px;
+        gap: 24px;
+        box-sizing: border-box;
+    }
+
+    #commerce .container .fir {
+        margin-top: 60px;
+        height: 420px;
+        gap: 16px;
+    }
+
+    #commerce .container .fir .image_swiper {
+        width: 100%;
+        min-width: 0;
+    }
+
+    #commerce .container .fir .slide_container {
+        height: 420px;
+    }
+
+    #commerce .container .fir .slide_description {
+        bottom: 200px;
+        left: 32px;
+        font-size: 28px;
+    }
+
+    #commerce .container .fir .slide_sub {
+        bottom: 150px;
+        left: 32px;
+        font-size: 36px;
+    }
+
+    #commerce .container .fir .acc .apply {
+        padding: 28px;
+    }
+
+    #commerce .container .fir .acc .apply .description {
+        font-size: 20px;
+    }
+
+    #commerce .container .fir .acc .apply .sub {
+        font-size: 14px;
+    }
+
+    #commerce .container .fir .acc .apply .btn {
+        padding: 16px 0;
+    }
+
+    #commerce .container .fir .acc .count {
+        padding: 28px;
+    }
+
+    #commerce .container .fir .acc .count .description {
+        font-size: 20px;
+    }
+
+    #commerce .container .fir .acc .count .num {
+        font-size: 20px;
+    }
+
+    #commerce .notice_title > div:first-child {
+        font-size: 28px;
+    }
+
+    #commerce .notice_card_wrap {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    #commerce .notice_card_wrap .notice_card {
+        height: 360px;
+    }
+
+    #commerce .notice_card_wrap .notice_card .image_wrap > img {
+        height: 200px;
+    }
+
+    #commerce .notice_card_wrap .notice_card .des_wrap {
+        padding: 16px;
+    }
+
+    #commerce .project_wrap {
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 16px;
+        row-gap: 40px;
+    }
+
+    #commerce .project_wrap .project_card {
+        height: 360px;
+    }
+
+    #commerce .project_wrap .project_card .project_image_wrap > img {
+        height: 200px;
+    }
+
+    #commerce .project_wrap .description_wrap .title {
+        font-size: 16px;
+    }
+}
+
+/* 모바일: 768px 이하 */
+@media (max-width: 768px) {
+    #commerce .container {
+        padding: 6px 20px 48px 20px;
+        gap: 20px;
+        box-sizing: border-box;
+    }
+
+    #commerce .container .fir {
+        margin-top: 40px;
+        flex-direction: column;
+        height: auto;
+        gap: 20px;
+        align-items: stretch;
+    }
+
+    #commerce .container .fir .image_swiper {
+        flex: none;
+        width: 100%;
+        order: 1;
+    }
+
+    #commerce .container .fir .slide_container {
+        height: 280px;
+    }
+
+    #commerce .container .fir .slide_description {
+        bottom: 120px;
+        left: 20px;
+        font-size: 20px;
+    }
+
+    #commerce .container .fir .slide_sub {
+        bottom: 80px;
+        left: 20px;
+        font-size: 24px;
+    }
+
+    #commerce .container .fir .acc {
+        flex: none;
+        order: 2;
+        height: auto;
+        gap: 16px;
+    }
+
+    #commerce .container .fir .acc .apply {
+        padding: 20px;
+        flex: none;
+    }
+
+    #commerce .container .fir .acc .apply .description {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+
+    #commerce .container .fir .acc .apply .sub {
+        font-size: 13px;
+    }
+
+    #commerce .container .fir .acc .apply .btn_wrap {
+        flex-direction: column;
+    }
+
+    #commerce .container .fir .acc .apply .btn {
+        padding: 14px 0;
+        font-size: 14px;
+    }
+
+    #commerce .container .fir .acc .count {
+        padding: 20px;
+    }
+
+    #commerce .container .fir .acc .count .description {
+        font-size: 18px;
+    }
+
+    #commerce .container .fir .acc .count .wr {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    #commerce .container .fir .acc .count .sub {
+        font-size: 14px;
+    }
+
+    #commerce .container .fir .acc .count .num {
+        font-size: 18px;
+    }
+
+    #commerce .notice_title {
+        margin-top: 16px;
+    }
+
+    #commerce .notice_title > div:first-child {
+        font-size: 22px;
+    }
+
+    #commerce .notice_card_wrap {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    #commerce .notice_card_wrap .notice_card {
+        height: auto;
+        min-height: 320px;
+    }
+
+    #commerce .notice_card_wrap .notice_card .image_wrap > img {
+        height: 180px;
+    }
+
+    #commerce .notice_card_wrap .notice_card .des_wrap {
+        padding: 16px;
+    }
+
+    #commerce .notice_card_wrap .notice_card .des_wrap .description {
+        font-size: 16px;
+    }
+
+    #commerce .notice_card_wrap .notice_card .des_wrap .sub,
+    #commerce .notice_card_wrap .notice_card .des_wrap .date,
+    #commerce .notice_card_wrap .notice_card .des_wrap .detail {
+        font-size: 13px;
+    }
+
+    #commerce .project_wrap {
+        grid-template-columns: 1fr;
+        column-gap: 0;
+        row-gap: 24px;
+    }
+
+    #commerce .project_wrap .project_card {
+        height: auto;
+        min-height: 320px;
+    }
+
+    #commerce .project_wrap .project_card .project_image_wrap .dday {
+        left: 12px;
+        top: 12px;
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    #commerce .project_wrap .project_card .project_image_wrap > img {
+        height: 180px;
+    }
+
+    #commerce .project_wrap .description_wrap {
+        padding: 12px 10px;
+    }
+
+    #commerce .project_wrap .description_wrap .title {
+        font-size: 15px;
+    }
+
+    #commerce .project_wrap .description_wrap .sub {
+        font-size: 13px;
+    }
+
+    #commerce .project_wrap .description_wrap .mo {
+        font-size: 14px;
+    }
+
+    /* 인라인 marginTop 100 조정 (프로젝트 섹션 위 여백) */
+    #commerce .container .notice_title[style*="margin-top"] {
+        margin-top: 60px !important;
     }
 }
