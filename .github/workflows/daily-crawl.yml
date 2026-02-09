@@ -1,0 +1,43 @@
+# .github/workflows/daily-crawl.yml
+name: Daily Shorts Crawler
+
+on:
+  schedule:
+    # 매일 UTC 0시 (KST 오전 9시) 실행
+    - cron: '0 0 * * *'
+  
+  # 수동 실행 가능
+  workflow_dispatch:
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          cd backend/backend
+          pip install -r requirements.txt
+      
+      - name: Run crawler
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          APP_ENV: prod
+        run: |
+          cd backend/backend
+          python simple_crawler.py
+      
+      - name: Notify result
+        if: always()
+        run: |
+          echo "Crawler execution completed"
+          echo "Check logs for details"

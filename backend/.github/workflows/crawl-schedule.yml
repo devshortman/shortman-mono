@@ -1,0 +1,48 @@
+name: Crawl & Refresh (Supabase)
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 18 * * 1"   # 월요일 18:00 UTC = 한국 화요일 03:00
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crawl-schedule
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      # 레포 루트에서 backend/requirements.txt 설치
+      - name: Install deps
+        run: pip install -r backend/requirements.txt
+
+      # 레포 루트 기준으로 backend 패키지 실행
+      - name: Run crawler
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          APP_ENV: "ci"
+          LOG_LEVEL: "INFO"
+        run: |
+          set -e
+          python -V
+          python -m backend.crawler
+
+      - name: Post-run note
+        if: always()
+        run: echo "Crawl finished with status ${{ job.status }}"
