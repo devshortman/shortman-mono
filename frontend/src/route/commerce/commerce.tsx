@@ -124,7 +124,7 @@ const Commerce = () => {
                             </div>
                             <div className='btn_wrap'>
                                 <div className="btn" onClick={() => navigate('/join')}>지금 합류하기</div>
-                                <div className="btn on"onClick={() => navigate('/my')}>마이페이지</div>
+                                <div className="btn on"onClick={() => navigate('/project')}>마이페이지</div>
                             </div>
                         </div>
 
