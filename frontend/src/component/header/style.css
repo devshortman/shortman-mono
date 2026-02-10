@@ -166,46 +166,125 @@
         }
     }
 
-    /* 모바일: 768px 이하 */
+    /* 모바일: 768px 이하 - 이미지 크기는 아래 변수로 조절 가능 */
     @media (max-width: 768px) {
+        --header-mobile-logo-width: 100px;
+        --header-mobile-logo-min-width: 80px;
+        --header-mobile-nav-icon-size: 18px;
+        --header-mobile-action-icon-size: 24px;
+        --header-mobile-avatar-size: 32px;
+
         padding: 16px 20px;
         gap: 12px;
         flex-wrap: nowrap;
+        min-width: 0;
 
         > img {
-            width: 100px;
-            min-width: 80px;
+            width: var(--header-mobile-logo-width);
+            min-width: var(--header-mobile-logo-min-width);
             height: auto;
             object-fit: contain;
+            flex-shrink: 0;
         }
 
         .t {
             gap: 12px;
             font-size: 14px;
             font-weight: 500;
-            /* justify-content: center; */
             flex: 1;
             min-width: 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .t::-webkit-scrollbar {
+            display: none;
+        }
+
+        .t .nav-item {
+            flex-shrink: 0;
         }
 
         .t .nav-icon {
-            width: 22px;
-            height: 22px;
+            width: var(--header-mobile-nav-icon-size);
+            height: var(--header-mobile-nav-icon-size);
+            min-width: 0;
+            min-height: 0;
+            max-width: var(--header-mobile-nav-icon-size);
+            max-height: var(--header-mobile-nav-icon-size);
         }
 
         .c {
             gap: 12px;
             flex-shrink: 0;
+            min-width: 0;
         }
 
         .c img {
-            width: 24px;
-            height: 24px;
+            width: var(--header-mobile-action-icon-size);
+            height: var(--header-mobile-action-icon-size);
         }
 
         .c .avatar {
-            width: 32px;
-            height: 32px;
+            width: var(--header-mobile-avatar-size);
+            height: var(--header-mobile-avatar-size);
+        }
+    }
+
+    /* 초소형 모바일: 400px 이하 - 이미지 크기는 아래 변수로 조절 가능 */
+    @media (max-width: 400px) {
+        --header-mobile-logo-width: 80px;
+        --header-mobile-logo-min-width: 60px;
+        --header-mobile-nav-icon-size: 16px;
+        --header-mobile-action-icon-size: 22px;
+        --header-mobile-avatar-size: 28px;
+
+        padding: 12px 12px;
+        gap: 8px;
+
+        > img {
+            width: var(--header-mobile-logo-width);
+            min-width: var(--header-mobile-logo-min-width);
+        }
+
+        .t {
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .t .nav-icon {
+            width: var(--header-mobile-nav-icon-size);
+            height: var(--header-mobile-nav-icon-size);
+            min-width: 0;
+            min-height: 0;
+            max-width: var(--header-mobile-nav-icon-size);
+            max-height: var(--header-mobile-nav-icon-size);
+        }
+
+        .t .nav-item span {
+            font-size: 11px;
+        }
+
+        .c {
+            gap: 8px;
+        }
+
+        .c img {
+            width: var(--header-mobile-action-icon-size);
+            height: var(--header-mobile-action-icon-size);
+        }
+
+        .c .avatar {
+            width: var(--header-mobile-avatar-size);
+            height: var(--header-mobile-avatar-size);
+        }
+
+        .c .header-login-btn,
+        .c .header-logout-btn {
+            padding: 6px 12px;
+            font-size: 13px;
         }
     }
 }

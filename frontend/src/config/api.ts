@@ -13,6 +13,7 @@ export const API_BASE_URL = isDevelopment
 export const API_ENDPOINTS = {
   REGIONAL_SHORTS: `${API_BASE_URL}/api/v1/shorts/regional`,
   SHORTS: `${API_BASE_URL}/api/v1/shorts`,
+  CRAWL_KEYWORD: `${API_BASE_URL}/api/v1/shorts/crawl-keyword`,
   HEALTH: `${API_BASE_URL}/health`,
 } as const;
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../../assets/image/logo.svg';
 import search from '../../assets/image/icon_btn.svg';
-import bookmark from '../../assets/image/icon_btn_mark.svg';
 import youtubeIcon from '../../assets/image/youtube.svg';
 import instaIcon from '../../assets/image/insta.svg';
 import tiktokIcon from '../../assets/image/tiktok.svg';
