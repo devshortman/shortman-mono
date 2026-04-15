@@ -1,89 +1,134 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import './style.css'
-import { data } from '../utils/source';
-import ShortCard from '../../component/short-card/ShortCard';
+import React, { useEffect, useState } from 'react';
 import Header from '../../component/header/Header';
-
-import parent from '../../assets/image/parent.svg';
-import health from '../../assets/image/health.svg';
-import eat from '../../assets/image/eat.svg';
-
-import parentOn from '../../assets/image/parent_on.svg';
-import healthOn from '../../assets/image/health_on.svg';
-import eatOn from '../../assets/image/eat_on.svg';
+import "./style.css";
+import banner from '../../assets/image/banner.svg';
+import arrow from '../../assets/image/arrow.svg';
+import ShortCard from '../../component/short-card/ShortCard';
 import Footer from '../../component/footer/Footer';
+import { API_ENDPOINTS } from '../../config/api';
 
+interface ShortsItem {
+    id: number;
+    platform: string;
+    platform_id: string;
+    region: string;
+    title: string;
+    nickname?: string;
+    avatar?: string;
+    thumbnail?: string;
+    video_url: string;
+    description?: string;
+    likes?: number;
+    views?: number;
+    comments?: number;
+}
 
+const Home = () => {
+    const [loading, setLoading] = useState(true);
+    const [items, setItems] = useState<ShortsItem[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
-const Kr = () => {
-    const location = useLocation();
-    const path = location.pathname.replace(/^#?\//, '') || '';
+    useEffect(() => {
+        fetchShorts();
+    }, []);
 
-    const title =
-        path === 'shorts'
-            ? '유튜브 쇼츠 트렌드'
-            : path === 'reels'
-            ? '릴스 트렌드'
-            : path === 'tiktok'
-            ? '틱톡 트렌드'
-            : '숏폼 트렌드';
+    const fetchShorts = async () => {
+        try {
+            setLoading(true);
 
-    const platformFilter: 'youtube' | 'instagram' | 'tiktok' | null =
-        path === 'shorts' ? 'youtube' : path === 'reels' ? 'instagram' : path === 'tiktok' ? 'tiktok' : null;
+            // 플랫폼당 4개 × 3 = 12개
+            // 국내 2개 + 글로벌 2개씩 균등하게 뽑기
+            const platforms = ['youtube', 'instagram', 'tiktok'];
+            const regions = ['korea', 'global'];
+            const perPlatformPerRegion = 2;
 
-    const categories = [
-        { id: 'all', name: '전체', icon: null, iconOn: null },
-        { id: 'parent', name: '맘플 (육아/키즈)', icon: parent, iconOn: parentOn },
-        { id: 'eat', name: '먹플 (탐방/레시피/먹방)', icon: eat, iconOn: eatOn },
-        { id: 'health', name: '헬플 (헬스/건강)', icon: health, iconOn: healthOn },
-        { id: 'etc', name: '기타', icon: null, iconOn: null }
-    ];
+            const requests = platforms.flatMap(platform =>
+                regions.map(region =>
+                    fetch(`${API_ENDPOINTS.SHORTS}?platform=${platform}&region=${region}&limit=${perPlatformPerRegion}`)
+                        .then(r => r.ok ? r.json() : { items: [] })
+                        .then(d => d.items || [])
+                        .catch(() => [])
+                )
+            );
 
-    const [selectedCategory, setSelectedCategory] = useState('all');
+            const results = await Promise.all(requests);
+            const combined: ShortsItem[] = results.flat();
+
+            // 빈 플랫폼이 있으면 나머지로 채우기
+            if (combined.length < 12) {
+                const extra = await fetch(`${API_ENDPOINTS.SHORTS}?limit=12`)
+                    .then(r => r.ok ? r.json() : { items: [] })
+                    .then(d => d.items || [])
+                    .catch(() => []);
+
+                const existingIds = new Set(combined.map((i: ShortsItem) => i.id));
+                const fill = extra.filter((i: ShortsItem) => !existingIds.has(i.id));
+                combined.push(...fill.slice(0, 12 - combined.length));
+            }
+
+            setItems(combined.slice(0, 12));
+            setError(null);
+        } catch (err) {
+            console.error('Error fetching shorts:', err);
+            setError('데이터를 불러오는데 실패했습니다.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div id='home'>
+                <Header />
+                <div className='body'>
+                    <img src={banner} alt="banner" className="home-banner" />
+                    <div className="loading">로딩 중...</div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
-        <div id={'kr'}>
+        <div id='home'>
             <Header />
-
             <div className='body'>
-                <div className='ca'>
-                    <div>{title}</div>
-                    <div>
-                        {categories.map((category) => (
-                            <div
-                                key={category.id}
-                                className={selectedCategory === category.id ? 'select on' : 'select'}
-                                onClick={() => setSelectedCategory(category.id)}
-                            >
-                                {category.icon && (
-                                    <img
-                                        src={selectedCategory === category.id ? category.iconOn : category.icon}
-                                        alt={category.name}
-                                    />
-                                )}
-                                <div >
-                                    {category.name}
-                                </div>
-                            </div>
-                        ))}
+                <img src={banner} alt="banner" className="home-banner" />
+
+                <div className="c">
+                    <div className="h">
+                        <div>
+                            숏만 Pick <span>Top 12</span>
+                        </div>
+                        <div>더보기 <span><img src={arrow} alt="arrow" /></span></div>
                     </div>
-                </div>
 
-
-                <div className='w'>
-                    {data
-                        ?.filter((e: any) => !platformFilter || e?.platform === platformFilter)
-                        ?.slice(0, 8)
-                        ?.map((e: any, i: any) => (
-                            <ShortCard avatar={e?.avatar} thumbnail={e?.thumbnail} source={e?.platform ?? e?.source} key={i} />
-                        ))}
+                    {items.length > 0 ? (
+                        <div className='w'>
+                            {items.map((item) => (
+                                <ShortCard
+                                    key={item.id}
+                                    avatar={item.avatar}
+                                    thumbnail={item.thumbnail}
+                                    source={item.platform}
+                                    videoUrl={item.video_url}
+                                    title={item.title}
+                                    nickname={item.nickname}
+                                    likes={item.likes}
+                                    views={item.views}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="empty">
+                            {error || '데이터가 없습니다.'}
+                        </div>
+                    )}
                 </div>
             </div>
-            <Footer></Footer>
-
+            <Footer />
         </div>
     );
 };
 
-export default Kr;
+export default Home;
