@@ -4,9 +4,9 @@ import os
 import sys
 import logging
 from pathlib import Path
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from typing import Optional, Literal, List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -73,7 +73,9 @@ class YouTubeCrawler:
         query = REGION_QUERY[self.region]
         items = []
 
-        # 1. search - videoDuration=short (60초 이하 = Shorts)
+        # 최근 7일치만
+        published_after = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
         try:
             resp = httpx.get(
                 f"{self.BASE}/search",
@@ -84,6 +86,7 @@ class YouTubeCrawler:
                     "videoDuration": "short",
                     "maxResults": 20,
                     "order": "viewCount",
+                    "publishedAfter": published_after,
                     "key": self.api_key,
                 },
                 timeout=15,
@@ -94,18 +97,14 @@ class YouTubeCrawler:
             return items
 
         video_ids = []
-        snippets = {}
         for item in resp.json().get("items", []):
             vid = item.get("id", {}).get("videoId")
-            if not vid:
-                continue
-            video_ids.append(vid)
-            snippets[vid] = item.get("snippet", {})
+            if vid:
+                video_ids.append(vid)
 
         if not video_ids:
             return items
 
-        # 2. videos - statistics
         try:
             stats_resp = httpx.get(
                 f"{self.BASE}/videos",
@@ -159,24 +158,22 @@ class SupabaseWriter:
     def upsert_batch(self, items: List[ShortItem]) -> int:
         if not items:
             return 0
-        rows = []
-        for it in items:
-            rows.append({
-                "platform":    it.platform,
-                "platform_id": it.platform_id,
-                "region":      it.region,
-                "title":       it.title or "",
-                "nickname":    it.nickname,
-                "avatar":      it.avatar,
-                "thumbnail":   it.thumbnail,
-                "video_url":   it.video_url or "",
-                "description": it.description,
-                "likes":       it.likes,
-                "views":       it.views,
-                "comments":    it.comments,
-                "published_at": it.published_at,
-                "crawled_at":  utc_iso(),
-            })
+        rows = [{
+            "platform":    it.platform,
+            "platform_id": it.platform_id,
+            "region":      it.region,
+            "title":       it.title or "",
+            "nickname":    it.nickname,
+            "avatar":      it.avatar,
+            "thumbnail":   it.thumbnail,
+            "video_url":   it.video_url or "",
+            "description": it.description,
+            "likes":       it.likes,
+            "views":       it.views,
+            "comments":    it.comments,
+            "published_at": it.published_at,
+            "crawled_at":  utc_iso(),
+        } for it in items]
         self.sb.table("shorts_items").upsert(
             rows, on_conflict="platform,platform_id"
         ).execute()
