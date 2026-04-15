@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import Header from '../../component/header/Header';
-import "./style.css";
-import banner from '../../assets/image/banner.svg';
-import arrow from '../../assets/image/arrow.svg';
+import { useLocation } from 'react-router-dom';
+import './style.css';
 import ShortCard from '../../component/short-card/ShortCard';
+import Header from '../../component/header/Header';
 import Footer from '../../component/footer/Footer';
 import { API_ENDPOINTS } from '../../config/api';
+
+import parent from '../../assets/image/parent.svg';
+import health from '../../assets/image/health.svg';
+import eat from '../../assets/image/eat.svg';
+import parentOn from '../../assets/image/parent_on.svg';
+import healthOn from '../../assets/image/health_on.svg';
+import eatOn from '../../assets/image/eat_on.svg';
 
 interface ShortsItem {
     id: number;
@@ -23,112 +29,124 @@ interface ShortsItem {
     comments?: number;
 }
 
-const Home = () => {
-    const [loading, setLoading] = useState(true);
+const PLATFORM_MAP: Record<string, 'youtube' | 'instagram' | 'tiktok'> = {
+    shorts: 'youtube',
+    reels: 'instagram',
+    tiktok: 'tiktok',
+};
+
+const TITLE_MAP: Record<string, string> = {
+    shorts: '유튜브 쇼츠 트렌드',
+    reels: '인스타 릴스 트렌드',
+    tiktok: '틱톡 트렌드',
+};
+
+const categories = [
+    { id: 'all', name: '전체', icon: null, iconOn: null },
+    { id: 'parent', name: '맘플 (육아/키즈)', icon: parent, iconOn: parentOn },
+    { id: 'eat', name: '먹플 (탐방/레시피/먹방)', icon: eat, iconOn: eatOn },
+    { id: 'health', name: '헬플 (헬스/건강)', icon: health, iconOn: healthOn },
+    { id: 'etc', name: '기타', icon: null, iconOn: null },
+];
+
+const Kr = () => {
+    const location = useLocation();
+    const path = location.pathname.replace(/^#?\//, '') || '';
+
+    const platform = PLATFORM_MAP[path] || 'youtube';
+    const title = TITLE_MAP[path] || '숏폼 트렌드';
+
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [activeTab, setActiveTab] = useState<'korea' | 'global'>('korea');
     const [items, setItems] = useState<ShortsItem[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchShorts();
-    }, []);
+        fetchItems();
+    }, [platform, activeTab]);
 
-    const fetchShorts = async () => {
+    const fetchItems = async () => {
         try {
             setLoading(true);
-
-            // 플랫폼당 4개 × 3 = 12개
-            // 국내 2개 + 글로벌 2개씩 균등하게 뽑기
-            const platforms = ['youtube', 'instagram', 'tiktok'];
-            const regions = ['korea', 'global'];
-            const perPlatformPerRegion = 2;
-
-            const requests = platforms.flatMap(platform =>
-                regions.map(region =>
-                    fetch(`${API_ENDPOINTS.SHORTS}?platform=${platform}&region=${region}&limit=${perPlatformPerRegion}`)
-                        .then(r => r.ok ? r.json() : { items: [] })
-                        .then(d => d.items || [])
-                        .catch(() => [])
-                )
+            const resp = await fetch(
+                `${API_ENDPOINTS.SHORTS}?platform=${platform}&region=${activeTab}&limit=8`
             );
-
-            const results = await Promise.all(requests);
-            const combined: ShortsItem[] = results.flat();
-
-            // 빈 플랫폼이 있으면 나머지로 채우기
-            if (combined.length < 12) {
-                const extra = await fetch(`${API_ENDPOINTS.SHORTS}?limit=12`)
-                    .then(r => r.ok ? r.json() : { items: [] })
-                    .then(d => d.items || [])
-                    .catch(() => []);
-
-                const existingIds = new Set(combined.map((i: ShortsItem) => i.id));
-                const fill = extra.filter((i: ShortsItem) => !existingIds.has(i.id));
-                combined.push(...fill.slice(0, 12 - combined.length));
-            }
-
-            setItems(combined.slice(0, 12));
-            setError(null);
-        } catch (err) {
-            console.error('Error fetching shorts:', err);
-            setError('데이터를 불러오는데 실패했습니다.');
+            if (!resp.ok) throw new Error('fetch failed');
+            const data = await resp.json();
+            setItems(data.items || []);
+        } catch {
+            setItems([]);
         } finally {
             setLoading(false);
         }
     };
 
-    if (loading) {
-        return (
-            <div id='home'>
-                <Header />
-                <div className='body'>
-                    <img src={banner} alt="banner" className="home-banner" />
-                    <div className="loading">로딩 중...</div>
-                </div>
-                <Footer />
-            </div>
-        );
-    }
-
     return (
-        <div id='home'>
+        <div id='kr'>
             <Header />
             <div className='body'>
-                <img src={banner} alt="banner" className="home-banner" />
-
-                <div className="c">
-                    <div className="h">
-                        <div>
-                            숏만 Pick <span>Top 12</span>
-                        </div>
-                        <div>더보기 <span><img src={arrow} alt="arrow" /></span></div>
+                <div className='ca'>
+                    <div>{title}</div>
+                    <div>
+                        {categories.map((category) => (
+                            <div
+                                key={category.id}
+                                className={selectedCategory === category.id ? 'select on' : 'select'}
+                                onClick={() => setSelectedCategory(category.id)}
+                            >
+                                {category.icon && (
+                                    <img
+                                        src={selectedCategory === category.id ? category.iconOn! : category.icon}
+                                        alt={category.name}
+                                    />
+                                )}
+                                <div>{category.name}</div>
+                            </div>
+                        ))}
                     </div>
-
-                    {items.length > 0 ? (
-                        <div className='w'>
-                            {items.map((item) => (
-                                <ShortCard
-                                    key={item.id}
-                                    avatar={item.avatar}
-                                    thumbnail={item.thumbnail}
-                                    source={item.platform}
-                                    videoUrl={item.video_url}
-                                    title={item.title}
-                                    nickname={item.nickname}
-                                    likes={item.likes}
-                                    views={item.views}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="empty">
-                            {error || '데이터가 없습니다.'}
-                        </div>
-                    )}
                 </div>
+
+                {/* 국내 / 글로벌 탭 */}
+                <div className='tabs'>
+                    <div
+                        className={activeTab === 'korea' ? 'tab on' : 'tab'}
+                        onClick={() => setActiveTab('korea')}
+                    >
+                        국내
+                    </div>
+                    <div
+                        className={activeTab === 'global' ? 'tab on' : 'tab'}
+                        onClick={() => setActiveTab('global')}
+                    >
+                        글로벌
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div className="loading">로딩 중...</div>
+                ) : items.length > 0 ? (
+                    <div className='w'>
+                        {items.map((item) => (
+                            <ShortCard
+                                key={item.id}
+                                avatar={item.avatar}
+                                thumbnail={item.thumbnail}
+                                source={item.platform}
+                                videoUrl={item.video_url}
+                                title={item.title}
+                                nickname={item.nickname}
+                                likes={item.likes}
+                                views={item.views}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="empty">데이터가 없습니다.</div>
+                )}
             </div>
             <Footer />
         </div>
     );
 };
 
-export default Home;
+export default Kr;
