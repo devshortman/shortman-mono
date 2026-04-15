@@ -7,8 +7,6 @@ from pydantic import BaseModel
 from typing import List, Optional
 from supabase import create_client, Client
 
-# render.yaml 실행 기준: cd backend/backend && uvicorn app.main:app
-# → 실행 위치 backend/backend/ 이므로 config.py는 한 단계 위
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import APP_ENV
 
@@ -89,6 +87,82 @@ class TrendResponse(BaseModel):
     items: List[TrendItem]
     count: int
 
+class AdRequest(BaseModel):
+    keyword: str
+    region: str = "korea"
+    platforms: List[str] = ["youtube", "tiktok", "instagram"]
+    max_results: int = 20
+
+class AdResponse(BaseModel):
+    keyword: str
+    region: str
+    total: int
+
+# ------------------------------------------------------
+# Helpers
+# ------------------------------------------------------
+PLATFORMS = ["youtube", "instagram", "tiktok"]
+BASE_PER_PLATFORM = 4
+TOTAL_PER_REGION = 12
+
+def fetch_regional(region: str) -> List[dict]:
+    """
+    플랫폼당 4개씩 총 12개.
+    데이터 없는 플랫폼이 있으면 나머지 플랫폼이 균등 분배해서 채움.
+    """
+    results: dict[str, list] = {}
+
+    for platform in PLATFORMS:
+        try:
+            resp = (
+                supabase.table("shorts_items")
+                .select("*")
+                .eq("region", region)
+                .eq("platform", platform)
+                .order("crawled_at", desc=True)
+                .limit(BASE_PER_PLATFORM)
+                .execute()
+            )
+            results[platform] = resp.data or []
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"DB error region={region} platform={platform}: {e}")
+
+    # 부족한 슬롯 계산
+    total_got = sum(len(v) for v in results.values())
+    shortage = TOTAL_PER_REGION - total_got
+
+    if shortage > 0:
+        # 데이터 있는 플랫폼에서 추가 보충
+        active = [p for p in PLATFORMS if results[p]]
+        if active:
+            extra_per = shortage // len(active)
+            remainder = shortage % len(active)
+            for i, platform in enumerate(active):
+                extra = extra_per + (1 if i < remainder else 0)
+                if extra <= 0:
+                    continue
+                already = len(results[platform])
+                try:
+                    resp = (
+                        supabase.table("shorts_items")
+                        .select("*")
+                        .eq("region", region)
+                        .eq("platform", platform)
+                        .order("crawled_at", desc=True)
+                        .limit(already + extra)
+                        .execute()
+                    )
+                    results[platform] = resp.data or []
+                except Exception:
+                    pass
+
+    combined = []
+    for platform in PLATFORMS:
+        combined.extend(results[platform])
+
+    return combined
+
+
 # ------------------------------------------------------
 # Health
 # ------------------------------------------------------
@@ -96,36 +170,24 @@ class TrendResponse(BaseModel):
 async def health():
     return {"status": "ok", "env": APP_ENV}
 
+
 # ------------------------------------------------------
-# Shorts - 지역별
+# Shorts - 지역별 (플랫폼 444 균등 분배)
 # ------------------------------------------------------
 @app.get("/api/v1/shorts/regional", response_model=ShortsRegionalResponse,
          summary="지역별 Shorts 조회")
-async def get_regional_shorts(
-    limit_per_region: int = Query(16, ge=1, le=50)
-):
-    result = {"korea": [], "global": [], "china": []}
-    for region in ["korea", "global", "china"]:
-        try:
-            resp = (
-                supabase.table("shorts_items")
-                .select("*")
-                .eq("region", region)
-                .order("crawled_at", desc=True)
-                .limit(limit_per_region)
-                .execute()
-            )
-            if resp.data:
-                result[region] = resp.data
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"DB error region={region}: {e}")
+async def get_regional_shorts():
+    korea  = fetch_regional("korea")
+    global_ = fetch_regional("global")
+    china  = fetch_regional("china")
 
     return {
-        "korea": result["korea"],
-        "global_": result["global"],
-        "china": result["china"],
-        "total_count": sum(len(v) for v in result.values())
+        "korea":       korea,
+        "global_":     global_,
+        "china":       china,
+        "total_count": len(korea) + len(global_) + len(china)
     }
+
 
 # ------------------------------------------------------
 # Shorts - 전체/필터
@@ -150,6 +212,7 @@ async def get_shorts(
     data = resp.data or []
     return ShortsResponse(items=data, count=len(data))
 
+
 # ------------------------------------------------------
 # Trends (레거시)
 # ------------------------------------------------------
@@ -170,24 +233,13 @@ async def trends(limit: int = Query(20, ge=1, le=100)):
     data = resp.data or []
     return TrendResponse(items=data, count=len(data))
 
-# ------------------------------------------------------
-# Ad - 키워드 기반 크롤링 추가
-# ------------------------------------------------------
-class AdRequest(BaseModel):
-    keyword: str
-    region: str = "korea"
-    platforms: List[str] = ["youtube", "tiktok", "instagram"]
-    max_results: int = 20
 
-class AdResponse(BaseModel):
-    keyword: str
-    region: str
-    total: int
-
+# ------------------------------------------------------
+# Ad - 키워드 기반 크롤링
+# ------------------------------------------------------
 @app.post("/api/v0/ad", response_model=AdResponse, summary="키워드 기반 숏폼 추가")
 async def add_ad(req: AdRequest):
     try:
-        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
         from add_ad import run_ad
         total = run_ad(
             keyword=req.keyword,
