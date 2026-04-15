@@ -169,3 +169,32 @@ async def trends(limit: int = Query(20, ge=1, le=100)):
 
     data = resp.data or []
     return TrendResponse(items=data, count=len(data))
+
+# ------------------------------------------------------
+# Ad - 키워드 기반 크롤링 추가
+# ------------------------------------------------------
+class AdRequest(BaseModel):
+    keyword: str
+    region: str = "korea"
+    platforms: List[str] = ["youtube", "tiktok", "instagram"]
+    max_results: int = 20
+
+class AdResponse(BaseModel):
+    keyword: str
+    region: str
+    total: int
+
+@app.post("/api/v0/ad", response_model=AdResponse, summary="키워드 기반 숏폼 추가")
+async def add_ad(req: AdRequest):
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+        from add_ad import run_ad
+        total = run_ad(
+            keyword=req.keyword,
+            region=req.region,
+            platforms=req.platforms,
+            max_results=req.max_results,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Crawl error: {e}")
+    return AdResponse(keyword=req.keyword, region=req.region, total=total)
