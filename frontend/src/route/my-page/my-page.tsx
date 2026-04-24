@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Footer from '../../component/footer/Footer';
-import Header from '../../component/header/Header';
+import Footer from '../../component/footer/footer';
+import Header from '../../component/header/header';
 import Tiktok from '../../assets/image/tiktok.svg';
 import Youtube from '../../assets/image/youtube.svg';
 import Insta from '../../assets/image/insta.svg';
