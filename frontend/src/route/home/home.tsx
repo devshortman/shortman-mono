@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Header from '../../component/header/Header';
+import Header from '../../component/header/header';
 import "./style.css";
 import banner from '../../assets/image/banner.svg';
 import arrow from '../../assets/image/arrow.svg';
 import ShortCard from '../../component/short-card/ShortCard';
-import Footer from '../../component/footer/Footer';
+import Footer from '../../component/footer/footer';
 import { API_ENDPOINTS } from '../../config/api';
 
 interface ShortsItem {
