@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Header from '../../component/header/Header';
-import Footer from '../../component/footer/Footer';
+import Header from '../../component/header/header';
+import Footer from '../../component/footer/footer';
 import './style.css';
 
 type ProjectStatus = '진행중' | '대기중' | '완료';
