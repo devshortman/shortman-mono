@@ -14,7 +14,7 @@ import image5 from '../../assets/image/image5.svg'
 import insta from '../../assets/image/insta.svg'
 import youtube from '../../assets/image/youtube.svg'
 import tiktok from '../../assets/image/tiktok.svg'
-import Footer from '../../component/footer/Footer';
+import Footer from '../../component/footer/footer';
 
 
 type CardInterface = {
