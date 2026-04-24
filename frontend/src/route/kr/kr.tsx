@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import './style.css';
 import ShortCard from '../../component/short-card/ShortCard';
-import Header from '../../component/header/Header';
-import Footer from '../../component/footer/Footer';
+import header from '../../component/header/header';
+import footer from '../../component/footer/footer';
 import { API_ENDPOINTS } from '../../config/api';
 
 import parent from '../../assets/image/parent.svg';
@@ -83,7 +83,7 @@ const Kr = () => {
 
     return (
         <div id='kr'>
-            <Header />
+            <header />
             <div className='body'>
                 <div className='ca'>
                     <div>{title}</div>
@@ -144,7 +144,7 @@ const Kr = () => {
                     <div className="empty">데이터가 없습니다.</div>
                 )}
             </div>
-            <Footer />
+            <footer />
         </div>
     );
 };
