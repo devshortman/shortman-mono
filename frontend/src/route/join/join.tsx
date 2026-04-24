@@ -1,6 +1,6 @@
 import React from 'react';
-import Header from '../../component/header/Header';
-import Footer from '../../component/footer/Footer';
+import Header from '../../component/header/header';
+import Footer from '../../component/footer/footer';
 import './style.css'
 
 const Join = () => {
