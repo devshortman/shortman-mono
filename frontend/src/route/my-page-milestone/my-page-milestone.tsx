@@ -1,6 +1,6 @@
 import React from 'react';
-import Footer from '../../component/footer/Footer';
-import Header from '../../component/header/Header';
+import Footer from '../../component/footer/footer';
+import Header from '../../component/header/header';
 import './style.css';
 import Fresh from '../../assets/image/fresh.svg';
 import { useNavigate } from 'react-router-dom';
