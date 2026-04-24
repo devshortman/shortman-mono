@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import Header from '../../component/header/Header';
-import Footer from '../../component/footer/Footer';
+import Header from '../../component/header/header';
+import Footer from '../../component/footer/footer';
 import './user_login.css';
 
 export default function UserLogin() {
