@@ -1,162 +1,495 @@
-
-import { useEffect, useState } from 'react';
-import { supabase } from '../../supabaseClient';
+import { useEffect, useState, useCallback } from 'react';
+import Header from '../../component/header/header';
+import Footer from '../../component/footer/footer';
 import { API_ENDPOINTS } from '../../config/api';
+import './admin.css';
 
-export default function AdminKeywords() {
-  const [keywords, setKeywords] = useState<any[]>([]);
-  const [newKeyword, setNewKeyword] = useState('');
-  const [testEmail, setTestEmail] = useState('');
-  const [testPassword, setTestPassword] = useState('');
-  const [authMessage, setAuthMessage] = useState<string | null>(null);
+// ------------------------------------------------------
+// Types
+// ------------------------------------------------------
+type Region = 'korea' | 'global' | 'china';
 
-  // 구글 Shorts 키워드 크롤
-  const [crawlKeyword, setCrawlKeyword] = useState('육아');
-  const [crawlHtml, setCrawlHtml] = useState('');
-  const [crawlResult, setCrawlResult] = useState<{ parsed: number; saved: number } | null>(null);
-  const [crawlError, setCrawlError] = useState<string | null>(null);
+interface Keyword {
+  id: number;
+  region: Region;
+  keyword: string;
+  is_fixed: boolean;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
 
-  async function fetchKeywords() {
-    const { data } = await supabase.from('keywords').select('*').order('created_at', { ascending: false });
-    setKeywords(data ?? []);
+type MenuKey = 'keywords' | 'schedule' | 'shorts' | 'initiative' | 'users' | 'supaboard';
+
+const MENU_ITEMS: { key: MenuKey; label: string; enabled: boolean }[] = [
+  { key: 'keywords',   label: '키워드 풀',       enabled: true  },
+  { key: 'schedule',   label: '스크래퍼 스케줄', enabled: false },
+  { key: 'shorts',     label: '수집 영상 관리',  enabled: false },
+  { key: 'initiative', label: 'Initiative',      enabled: false },
+  { key: 'users',      label: '사용자 관리',     enabled: false },
+  { key: 'supaboard',  label: 'Supa-board',      enabled: false },
+];
+
+const TOKEN_KEY = 'admin_token';
+
+// ------------------------------------------------------
+// Token Helpers
+// ------------------------------------------------------
+function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+function setToken(token: string) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+async function authFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const token = getToken();
+  const headers = new Headers(init.headers);
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+  if (!headers.has('Content-Type') && init.body) {
+    headers.set('Content-Type', 'application/json');
   }
+  return fetch(url, { ...init, headers });
+}
 
-  // async function addKeyword() {
-  //   if (!newKeyword.trim()) return;
-  //   await supabase.from('keywords').insert({ keyword: newKeyword });
-  //   setNewKeyword('');
-  //   fetchKeywords();
-  // }
+// ------------------------------------------------------
+// Login Form
+// ------------------------------------------------------
+interface LoginFormProps {
+  onLoginSuccess: () => void;
+}
 
-  async function runCrawlKeyword() {
-    setCrawlResult(null);
-    setCrawlError(null);
+function LoginForm({ onLoginSuccess }: LoginFormProps) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
     try {
-      const res = await fetch(API_ENDPOINTS.CRAWL_KEYWORD, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          keyword: crawlKeyword.trim() || '육아',
-          html: crawlHtml.trim() || undefined,
-          region: 'korea',
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail || '크롤 실패'));
-      setCrawlResult({ parsed: data.parsed, saved: data.saved });
-    } catch (e) {
-      setCrawlError(e instanceof Error ? e.message : '크롤 실패');
-      setCrawlResult({ parsed: 0, saved: 0 });
-      console.error(e);
-    }
-  }
+      const body = new URLSearchParams();
+      body.append('username', username);
+      body.append('password', password);
 
-  async function createTestUser() {
-    setAuthMessage(null);
-    if (!testEmail.trim() || !testPassword.trim()) {
-      setAuthMessage('이메일과 비밀번호를 입력해주세요.');
-      return;
+      const res = await fetch(`${API_ENDPOINTS.ADMIN_LOGIN}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(typeof data.detail === 'string' ? data.detail : '로그인 실패');
+        return;
+      }
+
+      const data = await res.json();
+      setToken(data.access_token);
+      onLoginSuccess();
+    } catch {
+      setError('서버 통신 오류');
+    } finally {
+      setLoading(false);
     }
-    if (testPassword.length < 6) {
-      setAuthMessage('비밀번호는 6자 이상이어야 합니다.');
-      return;
+  };
+
+  return (
+    <div className="admin-login">
+      <div className="admin-login-box">
+        <h1>어드민 로그인</h1>
+        <form onSubmit={handleSubmit}>
+          <label>
+            <span>아이디</span>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              autoComplete="username"
+            />
+          </label>
+          <label>
+            <span>비밀번호</span>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+            />
+          </label>
+          {error && <p className="admin-error">{error}</p>}
+          <button type="submit" disabled={loading}>
+            {loading ? '로그인 중...' : '로그인'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------
+// Keywords Page
+// ------------------------------------------------------
+function KeywordsPage() {
+  const [keywords, setKeywords] = useState<Keyword[]>([]);
+  const [filterRegion, setFilterRegion] = useState<Region | 'all'>('all');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // 추가 폼
+  const [newRegion, setNewRegion] = useState<Region>('korea');
+  const [newKeyword, setNewKeyword] = useState('');
+  const [newIsFixed, setNewIsFixed] = useState(false);
+  const [adding, setAdding] = useState(false);
+
+  const fetchKeywords = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const url =
+        filterRegion === 'all'
+          ? API_ENDPOINTS.ADMIN_KEYWORDS
+          : `${API_ENDPOINTS.ADMIN_KEYWORDS}?region=${filterRegion}`;
+      const res = await authFetch(url);
+      if (!res.ok) {
+        setError(`목록 조회 실패 (${res.status})`);
+        return;
+      }
+      const data = await res.json();
+      setKeywords(data.items || []);
+    } catch {
+      setError('서버 통신 오류');
+    } finally {
+      setLoading(false);
     }
-    const { data, error } = await supabase.auth.signUp({
-      email: testEmail.trim(),
-      password: testPassword,
-    });
-    if (error) {
-      setAuthMessage(error.message);
-      return;
-    }
-    if (data.user) {
-      setAuthMessage(`테스트 계정 생성됨: ${data.user.email} — 로그인 페이지에서 확인하세요.`);
-      setTestEmail('');
-      setTestPassword('');
-    }
-  }
+  }, [filterRegion]);
 
   useEffect(() => {
     fetchKeywords();
-  }, []);
+  }, [fetchKeywords]);
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newKeyword.trim()) return;
+    setAdding(true);
+    setError(null);
+    try {
+      const res = await authFetch(API_ENDPOINTS.ADMIN_KEYWORDS, {
+        method: 'POST',
+        body: JSON.stringify({
+          region: newRegion,
+          keyword: newKeyword.trim(),
+          is_fixed: newIsFixed,
+          is_active: true,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(typeof data.detail === 'string' ? data.detail : '추가 실패');
+        return;
+      }
+      setNewKeyword('');
+      setNewIsFixed(false);
+      fetchKeywords();
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const toggleActive = async (kw: Keyword) => {
+    try {
+      const res = await authFetch(`${API_ENDPOINTS.ADMIN_KEYWORDS}/${kw.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ is_active: !kw.is_active }),
+      });
+      if (res.ok) fetchKeywords();
+    } catch {}
+  };
+
+  const toggleFixed = async (kw: Keyword) => {
+    try {
+      const res = await authFetch(`${API_ENDPOINTS.ADMIN_KEYWORDS}/${kw.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ is_fixed: !kw.is_fixed }),
+      });
+      if (res.ok) fetchKeywords();
+    } catch {}
+  };
+
+  const deleteKeyword = async (kw: Keyword) => {
+    if (!confirm(`"${kw.keyword}" 삭제하시겠습니까?`)) return;
+    try {
+      const res = await authFetch(`${API_ENDPOINTS.ADMIN_KEYWORDS}/${kw.id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) fetchKeywords();
+    } catch {}
+  };
+
+  // region별 그룹핑
+  const groupedKeywords: Record<Region, Keyword[]> = {
+    korea: [],
+    global: [],
+    china: [],
+  };
+  keywords.forEach((kw) => {
+    if (groupedKeywords[kw.region]) groupedKeywords[kw.region].push(kw);
+  });
 
   return (
-    <div style={{ padding: 24, maxWidth: 600 }}>
-      {/* <h2>키워드 관리</h2>
-      <div style={{ marginBottom: 12 }}>
-        <input value={newKeyword} onChange={(e) => setNewKeyword(e.target.value)} placeholder="새 키워드 입력" />
-        <button onClick={addKeyword}>등록</button>
-      </div> */}
-      <ul>
-        {keywords.map((kw) => (
-          <li key={kw.id}>
-            {kw.keyword} — {kw.status}
-          </li>
-        ))}
-      </ul>
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h2>키워드 풀</h2>
+        <div className="admin-filter">
+          <label>region</label>
+          <select
+            value={filterRegion}
+            onChange={(e) => setFilterRegion(e.target.value as Region | 'all')}
+          >
+            <option value="all">전체</option>
+            <option value="korea">korea</option>
+            <option value="global">global</option>
+            <option value="china">china</option>
+          </select>
+        </div>
+      </div>
 
-      <hr style={{ margin: '32px 0' }} />
-
-      <h2>구글 Shorts 키워드 크롤</h2>
-      <p style={{ fontSize: 14, color: '#666', marginBottom: 12 }}>
-        구글에서 “육아” 등으로 검색한 후 Shorts 탭을 선택하고, 페이지 HTML을 복사해 붙여넣으세요.
-      </p>
-      <div style={{ marginBottom: 8 }}>
+      {/* 추가 폼 */}
+      <form className="admin-add-form" onSubmit={handleAdd}>
+        <select
+          value={newRegion}
+          onChange={(e) => setNewRegion(e.target.value as Region)}
+        >
+          <option value="korea">korea</option>
+          <option value="global">global</option>
+          <option value="china">china</option>
+        </select>
         <input
-          value={crawlKeyword}
-          onChange={(e) => setCrawlKeyword(e.target.value)}
-          placeholder="키워드 (예: 육아)"
-          style={{ width: '100%', maxWidth: 320, padding: 8, marginBottom: 8 }}
+          type="text"
+          value={newKeyword}
+          onChange={(e) => setNewKeyword(e.target.value)}
+          placeholder="새 키워드"
+          required
         />
+        <label className="admin-checkbox">
+          <input
+            type="checkbox"
+            checked={newIsFixed}
+            onChange={(e) => setNewIsFixed(e.target.checked)}
+          />
+          <span>고정 키워드</span>
+        </label>
+        <button type="submit" disabled={adding}>
+          {adding ? '추가 중...' : '추가'}
+        </button>
+      </form>
+
+      {error && <p className="admin-error">{error}</p>}
+      {loading && <p>로딩 중...</p>}
+
+      {/* 목록: region별 그룹 */}
+      {(['korea', 'global', 'china'] as Region[]).map((region) => {
+        const list = groupedKeywords[region];
+        if (filterRegion !== 'all' && filterRegion !== region) return null;
+        if (list.length === 0 && filterRegion === region) {
+          return (
+            <div key={region} className="admin-region-group">
+              <h3>{region}</h3>
+              <p className="admin-empty">키워드 없음</p>
+            </div>
+          );
+        }
+        if (list.length === 0) return null;
+
+        return (
+          <div key={region} className="admin-region-group">
+            <h3>
+              {region} <span className="admin-count">({list.length})</span>
+            </h3>
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>id</th>
+                  <th>keyword</th>
+                  <th>fixed</th>
+                  <th>active</th>
+                  <th>action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.map((kw) => (
+                  <tr key={kw.id} className={!kw.is_active ? 'inactive' : ''}>
+                    <td>{kw.id}</td>
+                    <td>{kw.keyword}</td>
+                    <td>
+                      <button
+                        className={`pill ${kw.is_fixed ? 'on' : 'off'}`}
+                        onClick={() => toggleFixed(kw)}
+                      >
+                        {kw.is_fixed ? 'YES' : 'no'}
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        className={`pill ${kw.is_active ? 'on' : 'off'}`}
+                        onClick={() => toggleActive(kw)}
+                      >
+                        {kw.is_active ? 'ON' : 'off'}
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        className="admin-danger"
+                        onClick={() => deleteKeyword(kw)}
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ------------------------------------------------------
+// Disabled Page (placeholder)
+// ------------------------------------------------------
+function DisabledPage({ label }: { label: string }) {
+  return (
+    <div className="admin-page admin-disabled-page">
+      <h2>{label}</h2>
+      <p className="admin-empty">준비 중입니다.</p>
+    </div>
+  );
+}
+
+// ------------------------------------------------------
+// Admin Layout
+// ------------------------------------------------------
+interface AdminLayoutProps {
+  username: string;
+  onLogout: () => void;
+}
+
+function AdminLayout({ username, onLogout }: AdminLayoutProps) {
+  const [activeMenu, setActiveMenu] = useState<MenuKey>('keywords');
+
+  const renderContent = () => {
+    if (activeMenu === 'keywords') return <KeywordsPage />;
+    const item = MENU_ITEMS.find((m) => m.key === activeMenu);
+    return <DisabledPage label={item?.label || ''} />;
+  };
+
+  return (
+    <div className="admin-layout">
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-top">
+          <div className="admin-brand">SHORTMAN ADMIN</div>
+          <div className="admin-user">
+            <span>{username}</span>
+            <button className="admin-logout" onClick={onLogout}>
+              로그아웃
+            </button>
+          </div>
+        </div>
+        <nav className="admin-nav">
+          {MENU_ITEMS.map((item) => (
+            <button
+              key={item.key}
+              className={`admin-nav-item ${activeMenu === item.key ? 'active' : ''} ${
+                !item.enabled ? 'disabled' : ''
+              }`}
+              onClick={() => item.enabled && setActiveMenu(item.key)}
+              disabled={!item.enabled && activeMenu !== item.key}
+            >
+              {item.label}
+              {!item.enabled && <span className="admin-soon">soon</span>}
+            </button>
+          ))}
+        </nav>
+      </aside>
+      <main className="admin-content">{renderContent()}</main>
+    </div>
+  );
+}
+
+// ------------------------------------------------------
+// Main Component
+// ------------------------------------------------------
+export default function AdminKeywords() {
+  const [authChecked, setAuthChecked] = useState(false);
+  const [authed, setAuthed] = useState(false);
+  const [username, setUsername] = useState('');
+
+  const verifyToken = useCallback(async () => {
+    const token = getToken();
+    if (!token) {
+      setAuthed(false);
+      setAuthChecked(true);
+      return;
+    }
+    try {
+      const res = await authFetch(API_ENDPOINTS.ADMIN_ME);
+      if (res.ok) {
+        const data = await res.json();
+        setUsername(data.username || '');
+        setAuthed(true);
+      } else {
+        clearToken();
+        setAuthed(false);
+      }
+    } catch {
+      clearToken();
+      setAuthed(false);
+    } finally {
+      setAuthChecked(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    verifyToken();
+  }, [verifyToken]);
+
+  const handleLogout = () => {
+    clearToken();
+    setAuthed(false);
+    setUsername('');
+  };
+
+  if (!authChecked) {
+    return (
+      <div id="admin">
+        <Header />
+        <div className="admin-loading">인증 확인 중...</div>
+        <Footer />
       </div>
-      <div style={{ marginBottom: 8 }}>
-        <textarea
-          value={crawlHtml}
-          onChange={(e) => setCrawlHtml(e.target.value)}
-          placeholder="HTML 붙여넣기 (선택) — 없으면 SERPAPI_KEY로 API 검색 시도"
-          rows={6}
-          style={{ width: '100%', maxWidth: 600, padding: 8, fontFamily: 'monospace', fontSize: 12 }}
-        />
-      </div>
-      <button onClick={runCrawlKeyword}>크롤 실행</button>
-      {crawlResult !== null && (
-        <p style={{ marginTop: 8, fontSize: 14, color: crawlError ? '#c00' : '#0a0' }}>
-          {crawlError
-            ? `오류: ${crawlError}`
-            : `파싱 ${crawlResult.parsed}개, 신규 저장 ${crawlResult.saved}개`}
-        </p>
+    );
+  }
+
+  return (
+    <div id="admin">
+      <Header />
+      {!authed ? (
+        <LoginForm onLoginSuccess={verifyToken} />
+      ) : (
+        <AdminLayout username={username} onLogout={handleLogout} />
       )}
-
-      <hr style={{ margin: '32px 0' }} />
-
-      <h2>테스트 로그인 계정 생성</h2>
-      <p style={{ fontSize: 14, color: '#666', marginBottom: 12 }}>
-        아래에서 이메일/비밀번호로 회원을 생성한 뒤, 로그인 페이지(/login)에서 로그인할 수 있습니다.
-      </p>
-      <div style={{ marginBottom: 8 }}>
-        <input
-          type="email"
-          value={testEmail}
-          onChange={(e) => setTestEmail(e.target.value)}
-          placeholder="이메일 (예: test@example.com)"
-          style={{ width: '100%', maxWidth: 320, padding: 8, marginRight: 8 }}
-        />
-      </div>
-      <div style={{ marginBottom: 8 }}>
-        <input
-          type="password"
-          value={testPassword}
-          onChange={(e) => setTestPassword(e.target.value)}
-          placeholder="비밀번호 (6자 이상)"
-          style={{ width: '100%', maxWidth: 320, padding: 8 }}
-        />
-      </div>
-      <button onClick={createTestUser}>테스트 계정 생성</button>
-      {authMessage && (
-        <p style={{ marginTop: 8, fontSize: 14, color: authMessage.startsWith('테스트') ? '#0a0' : '#c00' }}>
-          {authMessage}
-        </p>
-      )}
+      <Footer />
     </div>
   );
 }
