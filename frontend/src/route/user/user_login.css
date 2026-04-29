@@ -64,6 +64,16 @@
   color: #c00;
 }
 
+#user-login .login-box form .info {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #2680c2;
+  background: #e8f4ff;
+  padding: 10px 12px;
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
 #user-login .login-box form button {
   width: 100%;
   margin-top: 8px;
@@ -84,4 +94,24 @@
 #user-login .login-box form button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+#user-login .login-bottom {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}
+
+#user-login .login-bottom a {
+  margin-left: 8px;
+  color: #A02EFF;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+#user-login .login-bottom a:hover {
+  text-decoration: underline;
 }
