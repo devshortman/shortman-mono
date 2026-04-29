@@ -1,8 +1,9 @@
 import os
 import sys
 from pathlib import Path
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from typing import List, Optional
 from supabase import create_client, Client
@@ -10,12 +11,18 @@ from supabase import create_client, Client
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import APP_ENV
 
+from app.auth import (
+    authenticate_admin,
+    create_access_token,
+    get_current_admin,
+)
+
 # ------------------------------------------------------
 # App
 # ------------------------------------------------------
 app = FastAPI(
     title="short-man backend API",
-    version="0.3.0",
+    version="0.4.0",
     description="Short-man 서비스의 Backend API 문서입니다."
 )
 
@@ -98,6 +105,14 @@ class AdResponse(BaseModel):
     region: str
     total: int
 
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int  # seconds
+
+class AdminInfo(BaseModel):
+    username: str
+
 # ------------------------------------------------------
 # Helpers
 # ------------------------------------------------------
@@ -106,10 +121,6 @@ BASE_PER_PLATFORM = 4
 TOTAL_PER_REGION = 12
 
 def fetch_regional(region: str) -> List[dict]:
-    """
-    플랫폼당 4개씩 총 12개.
-    데이터 없는 플랫폼이 있으면 나머지 플랫폼이 균등 분배해서 채움.
-    """
     results: dict[str, list] = {}
 
     for platform in PLATFORMS:
@@ -127,12 +138,10 @@ def fetch_regional(region: str) -> List[dict]:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"DB error region={region} platform={platform}: {e}")
 
-    # 부족한 슬롯 계산
     total_got = sum(len(v) for v in results.values())
     shortage = TOTAL_PER_REGION - total_got
 
     if shortage > 0:
-        # 데이터 있는 플랫폼에서 추가 보충
         active = [p for p in PLATFORMS if results[p]]
         if active:
             extra_per = shortage // len(active)
@@ -169,6 +178,32 @@ def fetch_regional(region: str) -> List[dict]:
 @app.get("/health")
 async def health():
     return {"status": "ok", "env": APP_ENV}
+
+
+# ------------------------------------------------------
+# Admin Authentication
+# ------------------------------------------------------
+@app.post("/admin/login", response_model=LoginResponse, summary="어드민 로그인")
+async def admin_login(form_data: OAuth2PasswordRequestForm = Depends()):
+    """
+    OAuth2PasswordRequestForm 사용:
+    - 폼 필드: username, password (application/x-www-form-urlencoded)
+    """
+    admin = authenticate_admin(supabase, form_data.username, form_data.password)
+    if not admin:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    token = create_access_token(admin["username"])
+    return LoginResponse(
+        access_token=token,
+        token_type="bearer",
+        expires_in=3 * 60 * 60,
+    )
+
+
+@app.get("/admin/me", response_model=AdminInfo, summary="현재 로그인 어드민")
+async def admin_me(current: dict = Depends(get_current_admin)):
+    return AdminInfo(username=current["username"])
 
 
 # ------------------------------------------------------
