@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import Header from '../../component/header/header';
 import Footer from '../../component/footer/footer';
@@ -66,6 +66,10 @@ export default function UserLogin() {
               {loading ? '로그인 중...' : '로그인'}
             </button>
           </form>
+          <div className="login-bottom">
+            <span>아직 계정이 없으신가요?</span>
+            <Link to="/join">회원가입</Link>
+          </div>
         </div>
       </div>
       <Footer />
