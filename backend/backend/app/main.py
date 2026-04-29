@@ -108,10 +108,35 @@ class AdResponse(BaseModel):
 class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    expires_in: int  # seconds
+    expires_in: int
 
 class AdminInfo(BaseModel):
     username: str
+
+# Keyword 관리용 모델
+class KeywordItem(BaseModel):
+    id: int
+    region: str
+    keyword: str
+    is_fixed: bool
+    is_active: bool
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+class KeywordCreate(BaseModel):
+    region: str
+    keyword: str
+    is_fixed: bool = False
+    is_active: bool = True
+
+class KeywordUpdate(BaseModel):
+    keyword: Optional[str] = None
+    is_fixed: Optional[bool] = None
+    is_active: Optional[bool] = None
+
+class KeywordListResponse(BaseModel):
+    items: List[KeywordItem]
+    count: int
 
 # ------------------------------------------------------
 # Helpers
@@ -119,6 +144,8 @@ class AdminInfo(BaseModel):
 PLATFORMS = ["youtube", "instagram", "tiktok"]
 BASE_PER_PLATFORM = 4
 TOTAL_PER_REGION = 12
+
+VALID_REGIONS = {"korea", "global", "china"}
 
 def fetch_regional(region: str) -> List[dict]:
     results: dict[str, list] = {}
@@ -185,10 +212,6 @@ async def health():
 # ------------------------------------------------------
 @app.post("/admin/login", response_model=LoginResponse, summary="어드민 로그인")
 async def admin_login(form_data: OAuth2PasswordRequestForm = Depends()):
-    """
-    OAuth2PasswordRequestForm 사용:
-    - 폼 필드: username, password (application/x-www-form-urlencoded)
-    """
     admin = authenticate_admin(supabase, form_data.username, form_data.password)
     if not admin:
         raise HTTPException(status_code=401, detail="Invalid username or password")
@@ -204,6 +227,125 @@ async def admin_login(form_data: OAuth2PasswordRequestForm = Depends()):
 @app.get("/admin/me", response_model=AdminInfo, summary="현재 로그인 어드민")
 async def admin_me(current: dict = Depends(get_current_admin)):
     return AdminInfo(username=current["username"])
+
+
+# ------------------------------------------------------
+# Admin - Keywords CRUD
+# ------------------------------------------------------
+@app.get(
+    "/admin/keywords",
+    response_model=KeywordListResponse,
+    summary="키워드 목록 조회 (어드민)",
+)
+async def admin_list_keywords(
+    region: Optional[str] = Query(None, description="region 필터: korea/global/china"),
+    current: dict = Depends(get_current_admin),
+):
+    try:
+        query = supabase.table("keywords").select("*")
+        if region:
+            if region not in VALID_REGIONS:
+                raise HTTPException(status_code=400, detail=f"Invalid region: {region}")
+            query = query.eq("region", region)
+        resp = query.order("region").order("is_fixed", desc=True).order("keyword").execute()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+
+    data = resp.data or []
+    return KeywordListResponse(items=data, count=len(data))
+
+
+@app.post(
+    "/admin/keywords",
+    response_model=KeywordItem,
+    summary="키워드 추가 (어드민)",
+)
+async def admin_create_keyword(
+    body: KeywordCreate,
+    current: dict = Depends(get_current_admin),
+):
+    if body.region not in VALID_REGIONS:
+        raise HTTPException(status_code=400, detail=f"Invalid region: {body.region}")
+    if not body.keyword.strip():
+        raise HTTPException(status_code=400, detail="keyword is required")
+
+    try:
+        resp = (
+            supabase.table("keywords")
+            .insert({
+                "region": body.region,
+                "keyword": body.keyword.strip(),
+                "is_fixed": body.is_fixed,
+                "is_active": body.is_active,
+            })
+            .execute()
+        )
+    except Exception as e:
+        msg = str(e)
+        if "duplicate" in msg.lower() or "unique" in msg.lower():
+            raise HTTPException(status_code=409, detail="Keyword already exists for this region")
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+
+    if not resp.data:
+        raise HTTPException(status_code=500, detail="Insert failed")
+    return resp.data[0]
+
+
+@app.patch(
+    "/admin/keywords/{keyword_id}",
+    response_model=KeywordItem,
+    summary="키워드 수정 (어드민)",
+)
+async def admin_update_keyword(
+    keyword_id: int,
+    body: KeywordUpdate,
+    current: dict = Depends(get_current_admin),
+):
+    payload = {k: v for k, v in body.model_dump().items() if v is not None}
+    if "keyword" in payload:
+        payload["keyword"] = payload["keyword"].strip()
+        if not payload["keyword"]:
+            raise HTTPException(status_code=400, detail="keyword cannot be empty")
+    if not payload:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    try:
+        resp = (
+            supabase.table("keywords")
+            .update(payload)
+            .eq("id", keyword_id)
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+
+    if not resp.data:
+        raise HTTPException(status_code=404, detail="Keyword not found")
+    return resp.data[0]
+
+
+@app.delete(
+    "/admin/keywords/{keyword_id}",
+    summary="키워드 삭제 (어드민)",
+)
+async def admin_delete_keyword(
+    keyword_id: int,
+    current: dict = Depends(get_current_admin),
+):
+    try:
+        resp = (
+            supabase.table("keywords")
+            .delete()
+            .eq("id", keyword_id)
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+
+    deleted = len(resp.data or [])
+    return {"deleted": deleted}
 
 
 # ------------------------------------------------------
