@@ -396,6 +396,18 @@ def main():
         try:
             html = fetch_html(url)
             items = parse_results(html, kw, region)
+
+            # Fallback: srcf 적용했는데 결과 0개면 srcf 제거하고 재시도
+            if not items and src != "all":
+                logging.warning("Empty result with src=%s, falling back to all", src)
+                fb_sleep = random.uniform(sleep_min, sleep_max)
+                logging.info("fallback sleeping %.3fs", fb_sleep)
+                time.sleep(fb_sleep)
+                fb_url = build_search_url(kw, lang, "all")
+                fb_html = fetch_html(fb_url)
+                items = parse_results(fb_html, kw, region)
+                logging.info("fallback parsed=%d", len(items))
+
             count = writer.upsert_batch(items)
             total += count
             logging.info("kw=%s src=%s parsed=%d upserted=%d",
