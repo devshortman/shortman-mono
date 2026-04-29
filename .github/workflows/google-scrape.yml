@@ -29,9 +29,9 @@ jobs:
           cd backend/backend
           pip install -r requirements.txt
 
-      - name: Random pre-run sleep (0~600s)
+      - name: Random pre-run sleep (0~3614s)
         run: |
-          SLEEP=$((RANDOM % 600))
+          SLEEP=$((RANDOM % 3614))
           echo "Sleeping ${SLEEP}s before scraping"
           sleep $SLEEP
 
