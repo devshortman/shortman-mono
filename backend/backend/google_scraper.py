@@ -416,6 +416,11 @@ def main():
         url = build_search_url(kw, lang, src)
         try:
             html = fetch_html(url)
+            #debuggin#
+            logging.info("DEBUG kw=%s html_len=%d yt=%d ig=%d tt=%d MYHjcd=%d",
+                         kw, len(html), html.count('youtube.com'),
+                         html.count('instagram.com'), html.count('tiktok.com'),
+                         html.count('MYHjcd'))
             items = parse_results(html, kw, region)
 
             # Fallback: srcf 적용했는데 결과 0개면 srcf 제거하고 재시도
