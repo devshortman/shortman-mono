@@ -138,6 +138,39 @@ class KeywordListResponse(BaseModel):
     items: List[KeywordItem]
     count: int
 
+# Schedule 관리용 모델
+class ScheduleItem(BaseModel):
+    id: int
+    account: str
+    weekday: int
+    mode: str
+    region: str
+    lang: str
+    sleep_min: float
+    sleep_max: float
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+class ScheduleUpsert(BaseModel):
+    account: str
+    weekday: int
+    mode: str
+    region: str
+    lang: str
+    sleep_min: float = 5.0
+    sleep_max: float = 17.0
+
+class ScheduleUpdate(BaseModel):
+    mode: Optional[str] = None
+    region: Optional[str] = None
+    lang: Optional[str] = None
+    sleep_min: Optional[float] = None
+    sleep_max: Optional[float] = None
+
+class ScheduleListResponse(BaseModel):
+    items: List[ScheduleItem]
+    count: int
+
 # ------------------------------------------------------
 # Helpers
 # ------------------------------------------------------
@@ -339,6 +372,152 @@ async def admin_delete_keyword(
             supabase.table("keywords")
             .delete()
             .eq("id", keyword_id)
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+
+    deleted = len(resp.data or [])
+    return {"deleted": deleted}
+
+
+# ------------------------------------------------------
+# Admin - Schedule CRUD
+# ------------------------------------------------------
+VALID_MODES = {"full", "light", "off"}
+
+@app.get(
+    "/admin/schedules",
+    response_model=ScheduleListResponse,
+    summary="스크래퍼 스케줄 목록 (어드민)",
+)
+async def admin_list_schedules(
+    account: Optional[str] = Query(None, description="account 필터"),
+    current: dict = Depends(get_current_admin),
+):
+    try:
+        query = supabase.table("scraper_schedule").select("*")
+        if account:
+            query = query.eq("account", account)
+        resp = query.order("account").order("weekday").execute()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+
+    data = resp.data or []
+    return ScheduleListResponse(items=data, count=len(data))
+
+
+@app.post(
+    "/admin/schedules",
+    response_model=ScheduleItem,
+    summary="스케줄 upsert (어드민)",
+)
+async def admin_upsert_schedule(
+    body: ScheduleUpsert,
+    current: dict = Depends(get_current_admin),
+):
+    if body.region not in VALID_REGIONS:
+        raise HTTPException(status_code=400, detail=f"Invalid region: {body.region}")
+    if body.mode not in VALID_MODES:
+        raise HTTPException(status_code=400, detail=f"Invalid mode: {body.mode}")
+    if body.weekday < 0 or body.weekday > 6:
+        raise HTTPException(status_code=400, detail="weekday must be 0-6")
+    if not body.account.strip():
+        raise HTTPException(status_code=400, detail="account is required")
+
+    payload = {
+        "account": body.account.strip(),
+        "weekday": body.weekday,
+        "mode": body.mode,
+        "region": body.region,
+        "lang": body.lang.strip(),
+        "sleep_min": body.sleep_min,
+        "sleep_max": body.sleep_max,
+    }
+
+    try:
+        resp = (
+            supabase.table("scraper_schedule")
+            .upsert(payload, on_conflict="account,weekday")
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+
+    if not resp.data:
+        raise HTTPException(status_code=500, detail="Upsert failed")
+    return resp.data[0]
+
+
+@app.patch(
+    "/admin/schedules/{schedule_id}",
+    response_model=ScheduleItem,
+    summary="스케줄 수정 (어드민)",
+)
+async def admin_update_schedule(
+    schedule_id: int,
+    body: ScheduleUpdate,
+    current: dict = Depends(get_current_admin),
+):
+    payload = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not payload:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    if "mode" in payload and payload["mode"] not in VALID_MODES:
+        raise HTTPException(status_code=400, detail=f"Invalid mode: {payload['mode']}")
+    if "region" in payload and payload["region"] not in VALID_REGIONS:
+        raise HTTPException(status_code=400, detail=f"Invalid region: {payload['region']}")
+
+    try:
+        resp = (
+            supabase.table("scraper_schedule")
+            .update(payload)
+            .eq("id", schedule_id)
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+
+    if not resp.data:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return resp.data[0]
+
+
+@app.delete(
+    "/admin/schedules/{schedule_id}",
+    summary="스케줄 삭제 (어드민)",
+)
+async def admin_delete_schedule(
+    schedule_id: int,
+    current: dict = Depends(get_current_admin),
+):
+    try:
+        resp = (
+            supabase.table("scraper_schedule")
+            .delete()
+            .eq("id", schedule_id)
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+
+    deleted = len(resp.data or [])
+    return {"deleted": deleted}
+
+
+@app.delete(
+    "/admin/schedules/account/{account}",
+    summary="계정 전체 스케줄 삭제 (어드민)",
+)
+async def admin_delete_account_schedules(
+    account: str,
+    current: dict = Depends(get_current_admin),
+):
+    try:
+        resp = (
+            supabase.table("scraper_schedule")
+            .delete()
+            .eq("account", account)
             .execute()
         )
     except Exception as e:
