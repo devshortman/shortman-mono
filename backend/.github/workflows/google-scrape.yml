@@ -1,0 +1,47 @@
+name: Google Shorts Scraper
+
+on:
+  schedule:
+    # 매일 KST 09:00~10:00 사이 랜덤 분에 실행
+    # GitHub Actions cron은 분 단위 랜덤 미지원 → 09:23 UTC 00:23 (KST 09:23) 고정
+    - cron: '23 0 * * *'
+  workflow_dispatch:
+    inputs:
+      extra_keyword:
+        description: '추가로 검색할 키워드 (선택, 1개)'
+        required: false
+        default: ''
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          cd backend/backend
+          pip install -r requirements.txt
+
+      - name: Random pre-run sleep (0~600s)
+        run: |
+          SLEEP=$((RANDOM % 600))
+          echo "Sleeping ${SLEEP}s before scraping"
+          sleep $SLEEP
+
+      - name: Run scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          APP_ENV: prod
+          ACCOUNT_NAME: shortman-mono
+          EXTRA_KEYWORD: ${{ github.event.inputs.extra_keyword }}
+        run: |
+          cd backend/backend
+          python google_scraper.py
