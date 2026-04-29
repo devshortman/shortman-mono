@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
   ADMIN_LOGIN:      `${API_BASE_URL}/admin/login`,
   ADMIN_ME:         `${API_BASE_URL}/admin/me`,
   ADMIN_KEYWORDS:   `${API_BASE_URL}/admin/keywords`,
+  ADMIN_SCHEDULES:  `${API_BASE_URL}/admin/schedules`,
 } as const;
 
 // debug
