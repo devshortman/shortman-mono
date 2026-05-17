@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../../assets/image/logo.svg';
 import search from '../../assets/image/icon_btn.svg';
+import defaultHdrAvatar from '../../assets/image/default-profile-avatar.svg';
 import youtubeIcon from '../../assets/image/youtube.svg';
 import instaIcon from '../../assets/image/insta.svg';
 import tiktokIcon from '../../assets/image/tiktok.svg';
@@ -16,8 +17,13 @@ const Header = () => {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        supabase.auth
+            .getUser()
+            .then(({ data: { user } }) => setUser(user))
+            .catch(() => setUser(null));
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
         });
         return () => subscription.unsubscribe();
@@ -34,6 +40,14 @@ const Header = () => {
       { icon: tiktokIcon, label: '틱톡', path: '/tiktok' },
       { label: '커머스', path: '/commerce' },
     ];
+
+    const headerAvatarSrc =
+        user &&
+        typeof user.user_metadata?.avatar === 'string' &&
+        user.user_metadata.avatar.trim() !== '' &&
+        /^https?:\/\//i.test(user.user_metadata.avatar.trim())
+            ? user.user_metadata.avatar.trim()
+            : defaultHdrAvatar;
 
     return (
         <div id={'header'}>
@@ -62,7 +76,7 @@ const Header = () => {
                         <img src={search} alt="search" onClick={() => navigate("/search")} />
                         {/* <img src={bookmark} alt="bookmark" /> */}
                         <div className="avatar" onClick={() => navigate("/my")}>
-                            <span className="badge"></span>
+                            <img src={headerAvatarSrc} alt="" className="avatar-img-fill" />
                         </div>
                         <button type="button" className="header-logout-btn" onClick={handleLogout}>
                             로그아웃

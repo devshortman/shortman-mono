@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../../supabaseClient';
+import { supabase, supabaseConfigured } from '../../supabaseClient';
 import Header from '../../component/header/header';
 import Footer from '../../component/footer/footer';
 import './style.css';
@@ -19,6 +19,13 @@ const Join = () => {
     e.preventDefault();
     setError(null);
     setInfo(null);
+
+    if (!supabaseConfigured) {
+      setError(
+        'Supabase 환경 변수가 없습니다. frontend/.env.local 에 VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY 를 넣고 서버를 다시 시작하세요.'
+      );
+      return;
+    }
 
     if (password.length < 6) {
       setError('비밀번호는 6자 이상이어야 합니다.');
@@ -54,8 +61,14 @@ const Join = () => {
       } else {
         setInfo('가입 메일을 확인해주세요. 인증 후 로그인할 수 있습니다.');
       }
-    } catch {
-      setError('회원가입 중 오류가 발생했습니다.');
+    } catch (caught) {
+      const msg =
+        caught instanceof Error
+          ? caught.message
+          : typeof caught === 'string'
+            ? caught
+            : '알 수 없는 오류';
+      setError(`요청 실패: ${msg}`);
     } finally {
       setLoading(false);
     }
@@ -67,6 +80,11 @@ const Join = () => {
       <div className="login-body">
         <div className="login-box">
           <h1>회원가입</h1>
+          {!supabaseConfigured && (
+            <p className="error">
+              Supabase 설정이 필요합니다. frontend/.env.local 을 참고해 주세요.
+            </p>
+          )}
           <form onSubmit={handleSubmit}>
             <label>
               <span>이메일</span>

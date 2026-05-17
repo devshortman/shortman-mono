@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../../supabaseClient';
+import { supabase, supabaseConfigured } from '../../supabaseClient';
 import Header from '../../component/header/header';
 import Footer from '../../component/footer/footer';
 import './user_login.css';
@@ -15,6 +15,12 @@ export default function UserLogin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (!supabaseConfigured) {
+      setError(
+        'Supabase 환경 변수가 없습니다. frontend/.env.local 에 VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY 를 넣은 뒤 npm run dev 를 다시 시작하세요. (.env.production 은 로컬 dev 에서 불러오지 않습니다)'
+      );
+      return;
+    }
     setLoading(true);
     try {
       const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
@@ -25,8 +31,16 @@ export default function UserLogin() {
       if (data.user) {
         navigate('/my', { replace: true });
       }
-    } catch {
-      setError('로그인 중 오류가 발생했습니다.');
+    } catch (caught) {
+      const msg =
+        caught instanceof Error
+          ? caught.message
+          : typeof caught === 'string'
+            ? caught
+            : '알 수 없는 오류';
+      setError(
+        `요청 실패 (Failed to fetch 포함): ${msg}. URL·anon 키를 확인했는지, 광고 차단·네트워크를 점검하세요.`
+      );
     } finally {
       setLoading(false);
     }
@@ -38,6 +52,11 @@ export default function UserLogin() {
       <div className="login-body">
         <div className="login-box">
           <h1>로그인</h1>
+          {!supabaseConfigured && (
+            <p className="error">
+              현재 브라우저에 Supabase URL/키가 없어 로그인 요청이 나가지 않습니다. frontend/.env.local 을 확인하세요.
+            </p>
+          )}
           <form onSubmit={handleLogin}>
             <label>
               <span>아이디 (이메일)</span>

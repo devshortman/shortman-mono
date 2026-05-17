@@ -42,20 +42,16 @@
                     width: 60px;
                     height: 60px;
                     border-radius: 99px;
-                    background-image: url('../../assets/image/avatar.svg');
-                    background-size: cover;
-                    background-position: center;
+                    overflow: hidden;
+                    flex-shrink: 0;
                     position: relative;
+                    border: 1px solid rgba(0, 0, 0, 0.06);
 
-                    .badge {
-                        position: absolute;
-                        top: -8px;
-                        left: 30px;
-                        width: 40px;
-                        height: 20px;
-                        background-image: url('../../assets/image/mypage_badge.svg');
-                        background-size: contain;
-                        background-repeat: no-repeat;
+                    .mypage-avatar-fill {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        display: block;
                     }
                 }
 
@@ -763,12 +759,6 @@
             height: 48px;
         }
 
-        .account > div:first-child .avatar .badge {
-            width: 32px;
-            height: 16px;
-            left: 24px;
-        }
-
         .account > div:first-child .info .bold {
             font-size: 18px;
         }
@@ -1001,4 +991,141 @@
     width: 60px;
     text-align: right;
     font-weight: 600;
+}
+
+/* 마이페이지 DB 연동 안내 · 베타 문구 */
+#my .mypage-region-line {
+    color: #888;
+    font-size: 13px;
+}
+
+#my .count.mypage-metrics-notice {
+    display: block;
+    width: 100%;
+    justify-content: flex-start;
+    background: linear-gradient(135deg, rgba(118, 107, 250, 0.08), rgba(245, 120, 200, 0.06));
+    border: 1px solid rgba(118, 107, 250, 0.25);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: -20px;
+    box-sizing: border-box;
+}
+
+#my .count.mypage-metrics-notice strong {
+    font-size: 15px;
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+#my .count.mypage-metrics-notice p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #444;
+}
+
+#my .count.mypage-metrics-notice code {
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+/* Nox 레이아웃 미사용 시 오른쪽 패널 단독 폭 */
+#my .calist.mypage-calist-single .right {
+    width: 100%;
+}
+
+#my .mypage-radar-intro.card {
+    margin-bottom: 16px;
+    padding: 16px;
+    border-radius: 16px;
+    background: #f8f9fc;
+}
+
+#my .mypage-db-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #777;
+}
+
+#my .mypage-db-hint code {
+    font-size: 11px;
+}
+
+#my .mypage-profile-loaderr {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #c62828;
+    line-height: 1.45;
+}
+
+#my .mypage-profile-loaderr code {
+    font-size: 11px;
+}
+
+#my .mypage-file-input-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+#my .mypage-profile-image-panel .user-info-content {
+    flex: unset;
+}
+
+#my .mypage-avatar-editor {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+#my .mypage-avatar-thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #e8e8e8;
+}
+
+#my .mypage-avatar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#my .mypage-avatar-chip-btn {
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    color: #fff;
+    background: linear-gradient(166deg, #A02EFF 8%, #23DAEF 80%);
+}
+
+#my .mypage-avatar-chip-btn.secondary {
+    color: #555;
+    background: #eaeaea;
+}
+
+#my .mypage-avatar-chip-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#my .mypage-avatar-upload-err {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #c62828;
 }

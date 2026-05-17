@@ -12,6 +12,7 @@ import os
 import sys
 import time
 import random
+import hashlib
 import logging
 import urllib.parse
 from pathlib import Path
@@ -133,21 +134,33 @@ def get_recent_keywords(sb: Client, region: str, days: int = 3) -> set[str]:
     return {r["keyword"] for r in res.data if r.get("keyword")}
 
 
+def daily_keyword_rng(region: str, mode: str) -> random.Random:
+    """같은 날·같은 지역·모드면 키워드/출처 조합이 고정되어 피드가 하루 단위로 안정적."""
+    day_key = datetime.now(KST).date().isoformat()
+    seed_bytes = hashlib.sha256(
+        f"shortman|google_scraper|kw|v1|{day_key}|{region}|{mode}".encode()
+    ).digest()[:8]
+    seed = int.from_bytes(seed_bytes, "big")
+    return random.Random(seed)
+
+
 def pick_keywords(
     mode: str,
     fixed: List[str],
     normal: List[str],
     recent: set[str],
+    rng: random.Random | None = None,
 ) -> List[Dict]:
     """
     모드에 따라 (keyword, source_filter) 매핑 리스트 반환
     - full: 일반 4 + 챌린지 1 (출처: YT/IG/TT/all + all)
     - light: 일반 1 + 챌린지 1 (출처: 랜덤 1 + all)
     """
-    available = [k for k in normal if k not in recent]
+    rnd = rng or random
+    available = sorted([k for k in normal if k not in recent])
     if not available:
         # 최근 3일 안에 다 썼으면 그냥 풀에서 다시 뽑음
-        available = normal
+        available = sorted(normal)
         logging.warning("All normal keywords used in recent days, ignoring filter")
 
     result = []
@@ -155,26 +168,27 @@ def pick_keywords(
     if mode == "full":
         if len(available) < 4:
             picks = available[:]
-            random.shuffle(picks)
+            rnd.shuffle(picks)
         else:
-            picks = random.sample(available, 4)
+            picks = rnd.sample(available, 4)
 
         sources = ["youtube", "instagram", "tiktok", "all"]
-        random.shuffle(sources)
+        rnd.shuffle(sources)
         for kw, src in zip(picks, sources):
             result.append({"keyword": kw, "source_filter": src})
 
         # 챌린지
-        for fk in fixed:
+        fixed_sorted = sorted(fixed)
+        for fk in fixed_sorted:
             result.append({"keyword": fk, "source_filter": "all"})
 
     elif mode == "light":
         if available:
-            picks = random.sample(available, 1)
-            src = random.choice(["youtube", "instagram", "tiktok"])
+            picks = rnd.sample(available, 1)
+            src = rnd.choice(["youtube", "instagram", "tiktok"])
             result.append({"keyword": picks[0], "source_filter": src})
 
-        for fk in fixed:
+        for fk in sorted(fixed):
             result.append({"keyword": fk, "source_filter": "all"})
 
     return result
@@ -390,7 +404,8 @@ def main():
     # 2. 키워드 선정
     pool = get_active_keywords(sb, region)
     recent = get_recent_keywords(sb, region, days=3)
-    tasks = pick_keywords(mode, pool["fixed"], pool["normal"], recent)
+    rng = daily_keyword_rng(region, mode)
+    tasks = pick_keywords(mode, pool["fixed"], pool["normal"], recent, rng=rng)
 
     # 3. 추가 키워드 (수동 입력)
     if extra_keyword:

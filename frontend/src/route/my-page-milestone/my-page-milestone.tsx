@@ -30,9 +30,7 @@ const MyPageMilestone = () => {
 
                 <div className='account'>
                     <div>
-                        <div className="avatar">
-                            <span className="badge"></span>
-                        </div>
+                        <div className="avatar"></div>
                         <div className='info'>
                             <div className='na'>
                                 <div className='bold'>사용자 이름</div>

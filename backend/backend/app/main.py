@@ -292,6 +292,9 @@ class UserProfile(BaseModel):
     user_id: str
     nickname: Optional[str] = None
     avatar: Optional[str] = None
+    youtube: Optional[str] = None
+    instagram: Optional[str] = None
+    tiktok: Optional[str] = None
     is_blocked: bool = False
     block_reason: Optional[str] = None
     notes: Optional[str] = None
@@ -300,6 +303,10 @@ class UserProfile(BaseModel):
 
 class UserProfileUpdate(BaseModel):
     nickname: Optional[str] = None
+    avatar: Optional[str] = None
+    youtube: Optional[str] = None
+    instagram: Optional[str] = None
+    tiktok: Optional[str] = None
     is_blocked: Optional[bool] = None
     block_reason: Optional[str] = None
     notes: Optional[str] = None
